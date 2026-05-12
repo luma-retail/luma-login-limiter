@@ -33,6 +33,7 @@ Key features:
 * active lockout screen with manual unlock buttons
 * trusted IP header control for proxy-aware setups
 * emergency bypass username for one trusted admin account
+* translation-ready text domain with a committed POT template
 
 == Installation ==
 
@@ -54,6 +55,10 @@ Call `luma_login_limiter_mark_gateway( 'paywall' );` before `wp_signon()`, or us
 = Where is the plugin state stored? =
 
 The plugin stores its settings and local state in the WordPress options table using `luma_login_limiter_settings` and `luma_login_limiter_state`.
+
+= Is the plugin translation-ready? =
+
+Yes. The plugin uses the `luma-login-limiter` text domain and ships with a `languages/luma-login-limiter.pot` template for translators.
 
 = Does this bypass super admins automatically on multisite? =
 

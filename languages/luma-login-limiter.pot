@@ -1,0 +1,277 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Luma Login Limiter 0.1.0\n"
+"Report-Msgid-Bugs-To: https://github.com/luma-retail/luma-login-limiter/issues\n"
+"POT-Creation-Date: 2026-05-12 00:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: luma-login-limiter\n"
+
+msgid "Action"
+msgstr ""
+
+msgid "Active lockouts"
+msgstr ""
+
+msgid "Allowed XML-RPC users must authenticate with an application password instead of their standard account password."
+msgstr ""
+
+msgid "Allowlisted usernames or email-style logins"
+msgstr ""
+
+msgid "Application passwords only"
+msgstr ""
+
+msgid "Authentication hardening"
+msgstr ""
+
+msgid "Base lockout (minutes)"
+msgstr ""
+
+msgid "Browser login"
+msgstr ""
+
+msgid "Choose how much local event detail to keep. Debug stores the most detail and is best used temporarily."
+msgstr ""
+
+msgid "Cloudflare connecting IP"
+msgstr ""
+
+msgid "Counts are based on the recent event log kept locally by this plugin."
+msgstr ""
+
+msgid "Current posture"
+msgstr ""
+
+msgid "Custom login integration"
+msgstr ""
+
+msgid "Debug"
+msgstr ""
+
+msgid "Default is REMOTE_ADDR. Change this only when you trust the upstream proxy that sets the selected header."
+msgstr ""
+
+msgid "Denied or locked in 24h"
+msgstr ""
+
+msgid "Direct connection (REMOTE_ADDR)"
+msgstr ""
+
+msgid "Each repeated lockout multiplies the duration by this factor."
+msgstr ""
+
+msgid "Emergency bypass username"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Escalation cap"
+msgstr ""
+
+msgid "Escalation factor"
+msgstr ""
+
+msgid "Escalation window (minutes)"
+msgstr ""
+
+msgid "Explicit XML-RPC capabilities"
+msgstr ""
+
+msgid "Failure reset window (minutes)"
+msgstr ""
+
+msgid "Failures before browser login is locked."
+msgstr ""
+
+msgid "Failures before paywall or frontend login is locked."
+msgstr ""
+
+msgid "Failures before XML-RPC is locked for the matching IP or username."
+msgstr ""
+
+msgid "Failures expire after this window if no new failures arrive."
+msgstr ""
+
+msgid "For a paywall or frontend form, mark the request as paywall before authenticating. This keeps counters and logs separate from wp-login.php."
+msgstr ""
+
+msgid "Gateway"
+msgstr ""
+
+msgid "Gateway thresholds"
+msgstr ""
+
+msgid "Gateway-aware counters"
+msgstr ""
+
+msgid "IP"
+msgstr ""
+
+msgid "Info"
+msgstr ""
+
+msgid "Keep browser login, paywall login, and XML-RPC protected separately with local state, readable logs, and explicit lockout controls."
+msgstr ""
+
+msgid "Lockout timing"
+msgstr ""
+
+msgid "Log level"
+msgstr ""
+
+msgid "Luma Login Limiter"
+msgstr ""
+
+msgid "Maximum duration multiplier applied to repeated lockouts."
+msgstr ""
+
+msgid "No active lockouts right now. When a threshold is exceeded, matching IP and username lockouts will appear here for local review and manual unlock."
+msgstr ""
+
+msgid "No cloud dependency"
+msgstr ""
+
+msgid "No events recorded yet. Login attempts, denials, disabled XML-RPC methods, and lockouts will appear here."
+msgstr ""
+
+msgid "One per line or comma separated. Only these usernames are allowed to authenticate over XML-RPC unless an explicit capability below also matches."
+msgstr ""
+
+msgid "Operations and recovery"
+msgstr ""
+
+msgid "Optional capability names such as manage_options or edit_others_posts. This is an explicit allowlist, not a role shortcut."
+msgstr ""
+
+msgid "Optional trusted admin username that bypasses rate-limit counters and active lockouts. This does not bypass correct credentials or disabled XML-RPC methods."
+msgstr ""
+
+msgid "Or use the helper function included by the plugin:"
+msgstr ""
+
+msgid "Outcome"
+msgstr ""
+
+msgid "Paywall / custom login"
+msgstr ""
+
+msgid "Paywall threshold"
+msgstr ""
+
+msgid "Protection settings"
+msgstr ""
+
+msgid "Protection settings saved."
+msgstr ""
+
+msgid "Reason"
+msgstr ""
+
+msgid "Recent auth events"
+msgstr ""
+
+msgid "Recent gateway activity"
+msgstr ""
+
+msgid "Repeated lockouts inside this window will increase the duration."
+msgstr ""
+
+msgid "Require application passwords for XML-RPC"
+msgstr ""
+
+msgid "Reverse proxy single IP (X-Real-IP)"
+msgstr ""
+
+msgid "Save protection settings"
+msgstr ""
+
+msgid "Scope"
+msgstr ""
+
+msgid "Selected lockout removed."
+msgstr ""
+
+msgid "Standard passwords allowed"
+msgstr ""
+
+msgid "The first lockout duration before escalation is applied."
+msgstr ""
+
+msgid "These settings control XML-RPC access, gateway-specific thresholds, lockout escalation, and the amount of detail stored in local logs."
+msgstr ""
+
+msgid "This XML-RPC method is disabled by Luma Login Limiter."
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "Too many recent login failures. Please wait before trying again."
+msgstr ""
+
+msgid "Trusted IP header"
+msgstr ""
+
+msgid "Trusted IP source"
+msgstr ""
+
+msgid "Trusted proxy chain (X-Forwarded-For)"
+msgstr ""
+
+msgid "Unlock"
+msgstr ""
+
+msgid "Unlocks in"
+msgstr ""
+
+msgid "User"
+msgstr ""
+
+msgid "Value"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "XML-RPC access"
+msgstr ""
+
+msgid "XML-RPC allowlist"
+msgstr ""
+
+msgid "XML-RPC is not enabled for this account."
+msgstr ""
+
+msgid "XML-RPC password mode"
+msgstr ""
+
+msgid "XML-RPC requires an application password for allowed users."
+msgstr ""
+
+msgid "XML-RPC threshold"
+msgstr ""
+
+msgid "XML-RPC"
+msgstr ""
+
+msgid "You do not have permission to manage login protection."
+msgstr ""
+
+msgid "You do not have permission to unlock requests."
+msgstr ""
+
+msgid "You do not have permission to view login protection settings."
+msgstr ""
+
+msgid "less than a minute"
+msgstr ""
+
+msgid "wp-login threshold"
+msgstr ""

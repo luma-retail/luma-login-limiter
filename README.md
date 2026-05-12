@@ -60,6 +60,29 @@ The state option contains:
 - lockout history used for escalation
 - recent structured log entries
 
+## Localization
+
+The plugin is ready for standard WordPress translations.
+
+- The text domain is `luma-login-limiter`.
+- Translation source files live in `languages/`.
+- The committed template file is `languages/luma-login-limiter.pot`.
+
+To regenerate the POT file with WP-CLI:
+
+```bash
+wp i18n make-pot . languages/luma-login-limiter.pot --domain=luma-login-limiter --exclude=.git,node_modules,vendor,stubs
+```
+
+To add a locale, create a PO file such as `languages/luma-login-limiter-nb_NO.po`, then compile the matching MO file beside it.
+
+Recommended naming:
+
+- `languages/luma-login-limiter-nb_NO.po`
+- `languages/luma-login-limiter-nb_NO.mo`
+
+When adding new UI copy, regenerate the POT file in the same change so translators can track the public source of truth.
+
 ## Operational guidance
 
 - Leave the trusted IP source at `REMOTE_ADDR` unless you are behind a proxy you control and trust.
