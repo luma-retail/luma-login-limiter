@@ -1,266 +1,291 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Luma Login Limiter 0.2.0\n"
 "Report-Msgid-Bugs-To: https://github.com/luma-retail/luma-login-"
 "limiter/issues\n"
 "POT-Creation-Date: 2026-05-13 07:55+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2026-05-13 08:02+0000\n"
+"Last-Translator: Terje Johansen\n"
+"Language-Team: Norsk bokmål\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Domain: luma-login-limiter\n"
-"\n"
-"Language: \n"
-"X-Generator: Loco https://localise.biz/"
+"Language: nb_NO\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.8.4; wp-6.9.4; php-8.5.6"
 
 #: includes/class-admin-page.php:324
 msgid "Action"
-msgstr ""
+msgstr "Handling"
 
 #: includes/class-admin-page.php:245 includes/class-admin-page.php:307
 msgid "Active lockouts"
-msgstr ""
+msgstr "Aktive utestengelser"
 
 #: includes/class-admin-page.php:165
 msgid ""
 "Allowed XML-RPC users must authenticate with an application password instead "
 "of their standard account password."
 msgstr ""
+"Tillatte XML-RPC-brukere må autentisere seg med et passord for apper i "
+"stedet for sitt vanlige kontopassord."
 
 #: includes/class-admin-page.php:163
 msgid "Allowlisted usernames or email-style logins"
-msgstr ""
+msgstr "Tillisteførte brukernavn eller e-postlignende pålogginger"
 
 #: includes/class-admin-page.php:280
 msgid "Application passwords only"
-msgstr ""
+msgstr "Kun app-passord"
 
 #: includes/class-admin-page.php:140 includes/class-admin-page.php:230
 msgid "Authentication hardening"
-msgstr ""
+msgstr "Pass på nettstedet ditt"
 
 #: includes/class-admin-page.php:181
 msgid "Base lockout (minutes)"
-msgstr ""
+msgstr "Grunnleggende utestengelse (minutter)"
 
 #: includes/class-admin-page.php:289
 msgid "Browser login"
-msgstr ""
+msgstr "Nettleserinnlogging"
 
 #: includes/class-admin-page.php:192
 msgid ""
 "Choose how much local event detail to keep. Debug stores the most detail and "
 "is best used temporarily."
 msgstr ""
+"Velg hvor mye detaljert lokal hendelsesinformasjon som skal beholdes. "
+"Feilsøking lagrer mest detaljer og bør helst bare brukes midlertidig."
 
 #: includes/class-ip-resolver.php:39
 msgid "Cloudflare connecting IP"
-msgstr ""
+msgstr "Cloudflare-tilkoblings-IP"
 
 #: includes/class-admin-page.php:301
 msgid "Counts are based on the recent event log kept locally by this plugin."
 msgstr ""
+"Antall er basert på den nylige hendelsesloggen som lagres lokalt av denne "
+"pluginen."
 
 #: includes/class-admin-page.php:272
 msgid "Current configuration"
-msgstr ""
+msgstr "Gjeldende konfigurasjon"
 
 #: includes/class-admin-page.php:196
 msgid "Debug"
-msgstr ""
+msgstr "Feilsøking"
 
 #: includes/class-admin-page.php:191
 msgid ""
 "Default is REMOTE_ADDR. Change this only when you trust the upstream proxy "
 "that sets the selected header."
 msgstr ""
+"Standard er REMOTE_ADDR. Endre dette bare når du stoler på oppstrøms-proxyen "
+"som setter den valgte overskriften."
 
 #: includes/class-admin-page.php:265
 msgid "Denied or locked in 24h"
-msgstr ""
+msgstr "Avvist eller utestengt siste 24 t"
 
 #: includes/class-ip-resolver.php:36
 msgid "Direct connection (REMOTE_ADDR)"
-msgstr ""
+msgstr "Direkte tilkobling (REMOTE_ADDR)"
 
 #: includes/class-admin-page.php:183
 msgid "Each repeated lockout multiplies the duration by this factor."
 msgstr ""
+"Hver gjentatt utestengelse multipliserer varigheten med denne faktoren."
 
 #: includes/class-admin-page.php:190
 msgid "Emergency bypass username"
-msgstr ""
+msgstr "Brukernavn for nødutkobling"
 
 #: includes/class-admin-page.php:193
 msgid "Error"
-msgstr ""
+msgstr "Feil"
 
 #: includes/class-admin-page.php:184
 msgid "Escalation cap"
-msgstr ""
+msgstr "Eskaleringsgrense"
 
 #: includes/class-admin-page.php:183
 msgid "Escalation factor"
-msgstr ""
+msgstr "Eskaleringsfaktor"
 
 #: includes/class-admin-page.php:182
 msgid "Escalation window (minutes)"
-msgstr ""
+msgstr "Eskaleringsvindu (minutter)"
 
 #: includes/class-admin-page.php:164
 msgid "Explicit XML-RPC capabilities"
-msgstr ""
+msgstr "Eksplisitte XML-RPC-rettigheter"
 
 #: includes/class-admin-page.php:255
 msgid "Failed logins in 24h"
-msgstr ""
+msgstr "Mislykkede innlogginger siste 24 t"
 
 #: includes/class-admin-page.php:180
 msgid "Failure reset window (minutes)"
-msgstr ""
+msgstr "Tilbakestillingsvindu for feil (minutter)"
 
 #: includes/class-admin-page.php:171
 msgid "Failures before browser login is locked."
-msgstr ""
+msgstr "Antall feil før nettleserinnlogging låses."
 
 #: includes/class-admin-page.php:172
 msgid "Failures before paywall or frontend login is locked."
-msgstr ""
+msgstr "Antall feil før betalingstvegg eller innlogging i front-end låses."
 
 #: includes/class-admin-page.php:173
 msgid "Failures before XML-RPC is locked for the matching IP or username."
 msgstr ""
+"Antall feil før XML-RPC låses for den samsvarende IP-adressen eller "
+"brukernavnet."
 
 #: includes/class-admin-page.php:180
 msgid "Failures expire after this window if no new failures arrive."
-msgstr ""
+msgstr "Feil utløper etter dette vinduet hvis det ikke kommer nye feil."
 
 #: includes/class-admin-page.php:317 includes/class-admin-page.php:369
 msgid "Gateway"
-msgstr ""
+msgstr "Gateway"
 
 #: includes/class-admin-page.php:169
 msgid "Gateway thresholds"
-msgstr ""
+msgstr "Gateway-terskler"
 
 #: includes/class-admin-page.php:237
 msgid "Gateway visibility"
-msgstr ""
+msgstr "Gateway-synlighet"
 
 #: includes/class-admin-page.php:146
 msgid "Gateway-aware counters"
-msgstr ""
+msgstr "Gateway-bevisste tellere"
 
 #. URI of the plugin
 msgid "https://github.com/luma/luma-login-limiter"
-msgstr ""
+msgstr "https://github.com/luma/luma-login-limiter"
 
 #. Author URI of the plugin
 msgid "https://www.luma-retail.com/"
-msgstr ""
+msgstr "https://www.luma-retail.com/"
 
 #: includes/class-admin-page.php:195
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: includes/class-admin-page.php:321 includes/class-admin-page.php:371
 msgid "IP"
-msgstr ""
+msgstr "IP"
 
 #: includes/class-admin-page.php:142
 msgid ""
 "Keep browser login, paywall login, and XML-RPC protected separately with "
 "local state, readable logs, and explicit lockout controls."
 msgstr ""
+"Hold nettleserinnlogging, betalingstvegginnlogging og XML-RPC beskyttet "
+"separat med lokal tilstand, lesbare logger og eksplisitte "
+"utestengelseskontroller."
 
 #: includes/class-admin-page.php:546 includes/class-auth-guard.php:310
 msgid "less than a minute"
-msgstr ""
+msgstr "mindre enn ett minutt"
 
 #. Description of the plugin
 msgid ""
 "Lightweight gateway-aware login protection for browser login, paywall flows, "
 "and XML-RPC."
 msgstr ""
+"Lettvekts påloggingsbeskyttelse som tar hensyn til gateway for "
+"nettleserinnlogging, betalingstvegg-flyter og XML-RPC."
 
 #: includes/class-admin-page.php:235
 msgid "Local audit trail"
-msgstr ""
+msgstr "Lokal revisjonssporing"
 
 #: includes/class-admin-page.php:260
 msgid "Locked in 24h"
-msgstr ""
+msgstr "Låst i 24 t"
 
 #: includes/class-admin-page.php:178
 msgid "Lockout timing"
-msgstr ""
+msgstr "Karantenetid"
 
 #: includes/class-admin-page.php:192
 msgid "Log level"
-msgstr ""
+msgstr "Loggnivå"
 
 #: includes/class-admin-page.php:40
 msgid "Login lockouts"
-msgstr ""
+msgstr "Låste brukere"
 
 #: includes/class-admin-page.php:39 includes/class-admin-page.php:231
 msgid "Login Lockouts & Log"
-msgstr ""
+msgstr "Låste brukere"
 
 #. Name of the plugin
 #: includes/class-admin-page.php:30 includes/class-admin-page.php:31
 #: includes/class-admin-page.php:54 includes/class-admin-page.php:55
 #: includes/class-admin-page.php:141
 msgid "Luma Login Limiter"
-msgstr ""
+msgstr "Luma Login Limiter"
 
 #. Author of the plugin
 msgid "Luma Solutions"
-msgstr ""
+msgstr "Luma Solutions"
 
 #: includes/class-admin-page.php:236
 msgid "Manual unlock controls"
-msgstr ""
+msgstr "Manuelle opplåsingskontroller"
 
 #: includes/class-admin-page.php:184
 msgid "Maximum duration multiplier applied to repeated lockouts."
-msgstr ""
+msgstr "Maksimal varighetsmultiplikator som brukes på gjentatte utestengelser."
 
 #: includes/class-admin-page.php:311
 msgid ""
 "No active lockouts right now. When a threshold is exceeded, matching IP and "
 "username lockouts will appear here for local review and manual unlock."
 msgstr ""
+"Ingen aktive utestengelser akkurat nå. Når en terskel overskrides, vil "
+"samsvarende IP- og brukernavn-utestengelser vises her for lokal gjennomgang "
+"og manuell opplåsing."
 
 #: includes/class-admin-page.php:145
 msgid "No cloud dependency"
-msgstr ""
+msgstr "Ingen skyavhengighet"
 
 #: includes/class-admin-page.php:362
 msgid ""
 "No events recorded yet. Login attempts, denials, disabled XML-RPC methods, "
 "and lockouts will appear here."
 msgstr ""
+"Ingen hendelser registrert ennå. Innloggingsforsøk, avslag, deaktiverte XML-"
+"RPC-metoder og utestengelser vil vises her."
 
 #: includes/class-admin-page.php:163
 msgid ""
 "One per line or comma separated. Only these usernames are allowed to "
 "authenticate over XML-RPC unless an explicit capability below also matches."
 msgstr ""
+"Én per linje eller kommaseparert. Bare disse brukernavnene har lov til å "
+"autentisere via XML-RPC, med mindre en eksplisitt rettighet nedenfor også "
+"samsvarer."
 
 #: includes/class-admin-page.php:189
 msgid "Operations and recovery"
-msgstr ""
+msgstr "Drift og gjenoppretting"
 
 #: includes/class-admin-page.php:164
 msgid ""
 "Optional capability names such as manage_options or edit_others_posts. This "
 "is an explicit allowlist, not a role shortcut."
 msgstr ""
+"Valgfrie rettighetsnavn som manage_options eller edit_others_posts. Dette er "
+"en eksplisitt tillatelsesliste, ikke en snarvei til en rolle."
 
 #: includes/class-admin-page.php:190
 msgid ""
@@ -268,184 +293,193 @@ msgid ""
 "lockouts. This does not bypass correct credentials or disabled XML-RPC "
 "methods."
 msgstr ""
+"Valgfritt betrodd administratorbrukernavn som omgår tellere for "
+"hastighetsbegrensning og aktive utestengelser. Dette omgår ikke riktige "
+"legitimajonsopplysninger eller deaktiverte XML-RPC-metoder."
 
 #: includes/class-admin-page.php:372
 msgid "Outcome"
-msgstr ""
+msgstr "Resultat"
 
 #: includes/class-admin-page.php:293
 msgid "Paywall / custom login"
-msgstr ""
+msgstr "Betalingsmur / egendefinert innlogging"
 
 #: includes/class-admin-page.php:172
 msgid "Paywall threshold"
-msgstr ""
+msgstr "Terskel for betalingsmur"
 
 #: includes/class-admin-page.php:154
 msgid "Protection settings"
-msgstr ""
+msgstr "Beskyttelsesinnstillinger"
 
 #: includes/class-admin-page.php:475
 msgid "Protection settings saved."
-msgstr ""
+msgstr "Beskyttelsesinnstillingene er lagret."
 
 #: includes/class-admin-page.php:322 includes/class-admin-page.php:373
 msgid "Reason"
-msgstr ""
+msgstr "Årsak"
 
 #: includes/class-admin-page.php:358
 msgid "Recent auth events"
-msgstr ""
+msgstr "Nylige autentiseringshendelser"
 
 #: includes/class-admin-page.php:286
 msgid "Recent gateway activity"
-msgstr ""
+msgstr "Nylig gateway-aktivitet"
 
 #: includes/class-admin-page.php:182
 msgid "Repeated lockouts inside this window will increase the duration."
-msgstr ""
+msgstr "Gjentatte utestengelser innenfor dette vinduet vil øke varigheten."
 
 #: includes/class-admin-page.php:165
 msgid "Require application passwords for XML-RPC"
-msgstr ""
+msgstr "Krev applikasjonspassord for XML-RPC"
 
 #: includes/class-ip-resolver.php:38
 msgid "Reverse proxy single IP (X-Real-IP)"
-msgstr ""
+msgstr "Enkelt IP bak omvendt proxy (X-Real-IP)"
 
 #: includes/class-admin-page.php:232
 msgid ""
 "Review current lockouts, recent auth events, and gateway activity without "
 "leaving the Users area."
 msgstr ""
+"Gå gjennom gjeldende utestengelser, nylige autentiseringshendelser og "
+"gateway-aktivitet uten å forlate Brukere-området."
 
 #: includes/class-admin-page.php:201
 msgid "Save protection settings"
-msgstr ""
+msgstr "Lagre beskyttelsesinnstillinger"
 
 #: includes/class-admin-page.php:318
 msgid "Scope"
-msgstr ""
+msgstr "Omfang"
 
 #: includes/class-admin-page.php:479
 msgid "Selected lockout removed."
-msgstr ""
+msgstr "Valgt utestengelse fjernet."
 
 #: includes/class-admin-page.php:280
 msgid "Standard passwords allowed"
-msgstr ""
+msgstr "Standardpassord tillatt"
 
 #: includes/class-admin-page.php:181
 msgid "The first lockout duration before escalation is applied."
-msgstr ""
+msgstr "Den første varigheten for utestengelse før eskalering tas i bruk."
 
 #: includes/class-admin-page.php:155
 msgid ""
 "These settings control XML-RPC access, gateway-specific thresholds, lockout "
 "escalation, and the amount of detail stored in local logs."
 msgstr ""
+"Disse innstillingene kontrollerer XML-RPC-tilgang, terskler for spesifikke "
+"porter/gatewayer, eskalering av utestengelser og hvor mange detaljer som "
+"lagres i lokale logger."
 
 #: includes/class-xmlrpc-manager.php:69
 msgid "This XML-RPC method is disabled by Luma Login Limiter."
-msgstr ""
+msgstr "Denne XML-RPC-metoden er deaktivert av Luma Login Limiter."
 
 #: includes/class-admin-page.php:368
 msgid "Time"
-msgstr ""
+msgstr "Tid"
 
 #: includes/class-auth-guard.php:314
 #, php-format
 msgid "Too many recent login failures. Please try again in %s."
-msgstr ""
+msgstr "For mange nylige innloggingsfeil. Prøv igjen om %s."
 
 #: includes/class-auth-guard.php:305
 msgid "Too many recent login failures. Please try again shortly."
-msgstr ""
+msgstr "For mange nylige innloggingsfeil. Prøv igjen om litt."
 
 #: includes/class-admin-page.php:250
 msgid "Total failed login attempts"
-msgstr ""
+msgstr "Totalt antall mislykkede innloggingsforsøk"
 
 #: includes/class-admin-page.php:191
 msgid "Trusted IP header"
-msgstr ""
+msgstr "Betrodd IP-header"
 
 #: includes/class-admin-page.php:275
 msgid "Trusted IP source"
-msgstr ""
+msgstr "Betrodd IP-kilde"
 
 #: includes/class-ip-resolver.php:37
 msgid "Trusted proxy chain (X-Forwarded-For)"
-msgstr ""
+msgstr "Betrodd proxykjede (X-Forwarded-For)"
 
 #: includes/class-admin-page.php:344
 msgid "Unlock"
-msgstr ""
+msgstr "Lås opp"
 
 #: includes/class-admin-page.php:323
 msgid "Unlocks in"
-msgstr ""
+msgstr "Låses opp om"
 
 #: includes/class-admin-page.php:370
 msgid "User"
-msgstr ""
+msgstr "Bruker"
 
 #: includes/class-admin-page.php:320
 msgid "Username"
-msgstr ""
+msgstr "Brukernavn"
 
 #: includes/class-admin-page.php:319
 msgid "Value"
-msgstr ""
+msgstr "Verdi"
 
 #: includes/class-admin-page.php:194
 msgid "Warning"
-msgstr ""
+msgstr "Advarsel"
 
 #: includes/class-admin-page.php:171
 msgid "wp-login threshold"
-msgstr ""
+msgstr "wp-login-terskel"
 
 #: includes/class-admin-page.php:297
 msgid "XML-RPC"
-msgstr ""
+msgstr "XML-RPC"
 
 #: includes/class-admin-page.php:162
 msgid "XML-RPC access"
-msgstr ""
+msgstr "XML-RPC-tilgang"
 
 #: includes/class-admin-page.php:147
 msgid "XML-RPC allowlist"
-msgstr ""
+msgstr "XML-RPC-tillatelsesliste"
 
 #: includes/class-auth-guard.php:85
 msgid "XML-RPC is not enabled for this account."
-msgstr ""
+msgstr "XML-RPC er ikke aktivert for denne kontoen."
 
 #: includes/class-admin-page.php:279
 msgid "XML-RPC password mode"
-msgstr ""
+msgstr "XML-RPC-passordmodus"
 
 #: includes/class-auth-guard.php:149
 msgid "XML-RPC requires an application password for allowed users."
-msgstr ""
+msgstr "XML-RPC krever et applikasjonspassord for tillatte brukere."
 
 #: includes/class-admin-page.php:173
 msgid "XML-RPC threshold"
-msgstr ""
+msgstr "XML-RPC-terskel"
 
 #: includes/class-admin-page.php:82
 msgid "You do not have permission to manage login protection."
-msgstr ""
+msgstr "Du har ikke tillatelse til å administrere innloggingsbeskyttelse."
 
 #: includes/class-admin-page.php:110
 msgid "You do not have permission to unlock requests."
-msgstr ""
+msgstr "Du har ikke tillatelse til å låse opp forespørsler."
 
 #: includes/class-admin-page.php:212
 msgid "You do not have permission to view login protection activity."
-msgstr ""
+msgstr "Du har ikke tillatelse til å se aktivitet for innloggingsbeskyttelse."
 
 #: includes/class-admin-page.php:129
 msgid "You do not have permission to view login protection settings."
 msgstr ""
+"Du har ikke tillatelse til å vise innstillingene for påloggingsbeskyttelse."
