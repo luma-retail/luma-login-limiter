@@ -3,9 +3,9 @@
  * Plugin Name: Luma Login Limiter
  * Plugin URI: https://github.com/luma/luma-login-limiter
  * Description: Lightweight gateway-aware login protection for browser login, paywall flows, and XML-RPC.
- * Version: 0.1.0
- * Author: Luma
- * Author URI: https://luma.no
+ * Version: 0.2.0
+ * Author: Luma Solutions
+ * Author URI: https://www.luma-retail.com/
  * Requires at least: 6.4
  * Requires PHP: 8.0
  * Text Domain: luma-login-limiter

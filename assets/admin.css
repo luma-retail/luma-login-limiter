@@ -74,6 +74,13 @@
     font-weight: 700;
 }
 
+.luma-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
 .luma-summary-grid,
 .luma-layout-grid {
     display: grid;
@@ -87,6 +94,7 @@
     border: 1px solid var(--luma-border);
     border-radius: 22px;
     padding: 24px;
+    min-width: 0;
     box-shadow: 0 10px 22px rgba(31, 42, 46, 0.05);
 }
 
@@ -95,26 +103,51 @@
     margin-top: 0;
 }
 
+.luma-card-metric {
+    grid-column: auto;
+}
+
+.luma-card-metric dt {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--luma-muted);
+}
+
+.luma-card-metric dd {
+    margin: 10px 0 0;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
 .luma-card-form {
-    grid-column: span 7;
+    grid-column: span 6;
+}
+
+.luma-card-log {
+    grid-column: span 6;
+}
+
+.luma-card-full {
+    grid-column: 1 / -1;
+    margin-top: 20px;
 }
 
 .luma-side-column {
     grid-column: span 5;
     display: grid;
     gap: 20px;
+    min-width: 0;
 }
 
 .luma-summary-grid > .luma-card:nth-child(1) {
-    grid-column: span 4;
+    grid-column: span 5;
 }
 
 .luma-summary-grid > .luma-card:nth-child(2) {
-    grid-column: span 3;
-}
-
-.luma-summary-grid > .luma-card:nth-child(3) {
-    grid-column: span 5;
+    grid-column: span 7;
 }
 
 .luma-stat-list {
@@ -229,12 +262,21 @@
 }
 
 .luma-table-wrap {
+    max-width: 100%;
+    min-width: 0;
     overflow: auto;
+}
+
+.luma-table {
+    width: 100%;
+    table-layout: auto;
 }
 
 .luma-table td,
 .luma-table th {
     vertical-align: middle;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .luma-status {
@@ -268,11 +310,13 @@
 }
 
 @media (max-width: 1200px) {
+    .luma-card-metric,
     .luma-card-form,
+    .luma-card-log,
+    .luma-card-full,
     .luma-side-column,
     .luma-summary-grid > .luma-card:nth-child(1),
-    .luma-summary-grid > .luma-card:nth-child(2),
-    .luma-summary-grid > .luma-card:nth-child(3) {
+    .luma-summary-grid > .luma-card:nth-child(2) {
         grid-column: 1 / -1;
     }
 }
@@ -293,6 +337,7 @@
         justify-content: flex-start;
     }
 
+    .luma-metric-grid,
     .luma-summary-grid,
     .luma-layout-grid {
         display: block;

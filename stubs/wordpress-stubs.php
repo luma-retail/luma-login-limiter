@@ -115,8 +115,20 @@ if (! function_exists('get_option')) {
     }
 }
 
+if (! function_exists('get_site_option')) {
+    function get_site_option(string $option, $default = false) {
+        return $default;
+    }
+}
+
 if (! function_exists('add_option')) {
     function add_option(string $option, $value = '', string $deprecated = '', bool $autoload = true): bool {
+        return true;
+    }
+}
+
+if (! function_exists('add_site_option')) {
+    function add_site_option(string $option, $value): bool {
         return true;
     }
 }
@@ -127,8 +139,20 @@ if (! function_exists('update_option')) {
     }
 }
 
+if (! function_exists('update_site_option')) {
+    function update_site_option(string $option, $value): bool {
+        return true;
+    }
+}
+
 if (! function_exists('delete_option')) {
     function delete_option(string $option): bool {
+        return true;
+    }
+}
+
+if (! function_exists('delete_site_option')) {
+    function delete_site_option(string $option): bool {
         return true;
     }
 }
@@ -217,6 +241,12 @@ if (! function_exists('admin_url')) {
     }
 }
 
+if (! function_exists('network_admin_url')) {
+    function network_admin_url(string $path = '', string $scheme = 'admin'): string {
+        return $path;
+    }
+}
+
 if (! function_exists('add_query_arg')) {
     function add_query_arg(array $args, string $url = ''): string {
         return $url;
@@ -225,6 +255,18 @@ if (! function_exists('add_query_arg')) {
 
 if (! function_exists('add_options_page')) {
     function add_options_page(string $page_title, string $menu_title, string $capability, string $menu_slug, callable $callback = null): string|false {
+        return $menu_slug;
+    }
+}
+
+if (! function_exists('add_submenu_page')) {
+    function add_submenu_page(string $parent_slug, string $page_title, string $menu_title, string $capability, string $menu_slug, callable $callback = null): string|false {
+        return $menu_slug;
+    }
+}
+
+if (! function_exists('add_users_page')) {
+    function add_users_page(string $page_title, string $menu_title, string $capability, string $menu_slug, callable $callback = null): string|false {
         return $menu_slug;
     }
 }
@@ -296,6 +338,12 @@ if (! function_exists('wp_date')) {
 
 if (! function_exists('is_admin')) {
     function is_admin(): bool {
+        return false;
+    }
+}
+
+if (! function_exists('is_network_admin')) {
+    function is_network_admin(): bool {
         return false;
     }
 }

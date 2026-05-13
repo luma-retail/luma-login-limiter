@@ -30,6 +30,11 @@ final class State_Repository {
         $stored = is_array($stored) ? $stored : array();
         $this->state = array_merge($this->default_state(), $stored);
 
+        if (empty($stored['metrics']) && ! empty($this->state['logs'])) {
+            $this->state['metrics'] = $this->backfill_metrics_from_logs($this->state['logs']);
+            $this->persist();
+        }
+
         return $this->state;
     }
 
@@ -282,6 +287,28 @@ final class State_Repository {
         return array_slice(is_array($logs) ? $logs : array(), 0, $limit);
     }
 
+    public function increment_outcome_total(string $outcome): void {
+        if ('' === $outcome) {
+            return;
+        }
+
+        $state = $this->all();
+
+        if (! isset($state['metrics']['outcomes'][$outcome])) {
+            $state['metrics']['outcomes'][$outcome] = 0;
+        }
+
+        $state['metrics']['outcomes'][$outcome] = (int) $state['metrics']['outcomes'][$outcome] + 1;
+        $this->state                             = $state;
+        $this->persist();
+    }
+
+    public function outcome_total(string $outcome): int {
+        $state = $this->all();
+
+        return (int) ($state['metrics']['outcomes'][$outcome] ?? 0);
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -290,8 +317,37 @@ final class State_Repository {
             'counters' => array(),
             'lockouts' => array(),
             'history'  => array(),
+            'metrics'  => array(
+                'outcomes' => array(),
+            ),
             'logs'     => array(),
         );
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $logs
+     * @return array<string, mixed>
+     */
+    private function backfill_metrics_from_logs(array $logs): array {
+        $metrics = array(
+            'outcomes' => array(),
+        );
+
+        foreach ($logs as $log) {
+            $outcome = (string) ($log['outcome'] ?? '');
+
+            if ('' === $outcome) {
+                continue;
+            }
+
+            if (! isset($metrics['outcomes'][$outcome])) {
+                $metrics['outcomes'][$outcome] = 0;
+            }
+
+            $metrics['outcomes'][$outcome]++;
+        }
+
+        return $metrics;
     }
 
     private function persist(): void {

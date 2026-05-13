@@ -6,6 +6,7 @@ namespace Luma\LoginLimiter;
 
 final class Admin_Page {
     private const PAGE_SLUG = 'luma-login-limiter';
+    private const USERS_PAGE_SLUG = 'luma-login-limiter-activity';
 
     public function __construct(
         private readonly Settings $settings,
@@ -16,24 +17,55 @@ final class Admin_Page {
     }
 
     public function register(): void {
-        add_action('admin_menu', array($this, 'register_menu'));
+        add_action('admin_menu', array($this, 'register_site_menu'));
+        add_action('network_admin_menu', array($this, 'register_network_menu'));
         add_action('admin_post_luma_login_limiter_save_settings', array($this, 'handle_save_settings'));
         add_action('admin_post_luma_login_limiter_unlock', array($this, 'handle_unlock'));
         add_action('admin_enqueue_scripts', array($this, 'enqueue_assets'));
     }
 
-    public function register_menu(): void {
-        add_options_page(
+    public function register_site_menu(): void {
+        if (! is_multisite()) {
+            add_options_page(
+                __('Luma Login Limiter', 'luma-login-limiter'),
+                __('Luma Login Limiter', 'luma-login-limiter'),
+                $this->settings_manage_capability(),
+                self::PAGE_SLUG,
+                array($this, 'render_settings_page')
+            );
+        }
+
+        add_users_page(
+            __('Login Lockouts & Log', 'luma-login-limiter'),
+            __('Login lockouts', 'luma-login-limiter'),
+            $this->activity_manage_capability(),
+            self::USERS_PAGE_SLUG,
+            array($this, 'render_activity_page')
+        );
+    }
+
+    public function register_network_menu(): void {
+        if (! is_multisite()) {
+            return;
+        }
+
+        add_submenu_page(
+            'settings.php',
             __('Luma Login Limiter', 'luma-login-limiter'),
             __('Luma Login Limiter', 'luma-login-limiter'),
-            $this->manage_capability(),
+            $this->settings_manage_capability(),
             self::PAGE_SLUG,
-            array($this, 'render')
+            array($this, 'render_settings_page')
         );
     }
 
     public function enqueue_assets(string $hook): void {
-        if ('settings_page_' . self::PAGE_SLUG !== $hook) {
+        $allowed_hooks = array(
+            'settings_page_' . self::PAGE_SLUG,
+            'users_page_' . self::USERS_PAGE_SLUG,
+        );
+
+        if (! in_array($hook, $allowed_hooks, true)) {
             return;
         }
 
@@ -41,12 +73,12 @@ final class Admin_Page {
             'luma-login-limiter-admin',
             plugins_url('assets/admin.css', dirname(__DIR__) . '/luma-login-limiter.php'),
             array(),
-            '0.1.0'
+            '0.2.0'
         );
     }
 
     public function handle_save_settings(): void {
-        if (! current_user_can($this->manage_capability())) {
+        if (! current_user_can($this->settings_manage_capability())) {
             wp_die(esc_html__('You do not have permission to manage login protection.', 'luma-login-limiter'));
         }
 
@@ -74,7 +106,7 @@ final class Admin_Page {
     }
 
     public function handle_unlock(): void {
-        if (! current_user_can($this->manage_capability())) {
+        if (! current_user_can($this->activity_manage_capability())) {
             wp_die(esc_html__('You do not have permission to unlock requests.', 'luma-login-limiter'));
         }
 
@@ -85,26 +117,22 @@ final class Admin_Page {
         $value   = isset($_POST['value']) ? sanitize_text_field(wp_unslash((string) $_POST['value'])) : '';
 
         if ('' !== $gateway && '' !== $scope && '' !== $value) {
-            $this->rate_limiter->unlock($gateway, $scope, $value);
+            $this->unlock_matching_lockouts($gateway, $scope, $value);
         }
 
-        wp_safe_redirect($this->admin_url('unlocked'));
+        wp_safe_redirect($this->users_admin_url('unlocked'));
         exit;
     }
 
-    public function render(): void {
-        if (! current_user_can($this->manage_capability())) {
+    public function render_settings_page(): void {
+        if (! current_user_can($this->settings_manage_capability())) {
             wp_die(esc_html__('You do not have permission to view login protection settings.', 'luma-login-limiter'));
         }
 
         $this->state->cleanup($this->settings);
 
-        $settings         = $this->settings->all();
-        $lockouts         = $this->rate_limiter->active_lockouts();
-        $logs             = $this->state->logs(25);
-        $trusted_headers  = $this->ip_resolver->supported_headers();
-        $denied_last_day  = $this->count_denied_in_last_day($logs);
-        $gateway_counts   = $this->summarize_gateways($logs);
+        $settings        = $this->settings->all();
+        $trusted_headers = $this->ip_resolver->supported_headers();
         ?>
         <div class="wrap luma-login-limiter-admin">
             <div class="luma-hero">
@@ -121,61 +149,8 @@ final class Admin_Page {
             </div>
 
             <?php $this->render_notice(); ?>
-
-            <div class="luma-summary-grid">
-                <section class="luma-card">
-                    <h2><?php esc_html_e('Current posture', 'luma-login-limiter'); ?></h2>
-                    <dl class="luma-stat-list">
-                        <div>
-                            <dt><?php esc_html_e('Active lockouts', 'luma-login-limiter'); ?></dt>
-                            <dd><?php echo esc_html((string) count($lockouts)); ?></dd>
-                        </div>
-                        <div>
-                            <dt><?php esc_html_e('Denied or locked in 24h', 'luma-login-limiter'); ?></dt>
-                            <dd><?php echo esc_html((string) $denied_last_day); ?></dd>
-                        </div>
-                        <div>
-                            <dt><?php esc_html_e('Trusted IP source', 'luma-login-limiter'); ?></dt>
-                            <dd><?php echo esc_html($trusted_headers[$settings['trusted_ip_header']] ?? $settings['trusted_ip_header']); ?></dd>
-                        </div>
-                        <div>
-                            <dt><?php esc_html_e('XML-RPC password mode', 'luma-login-limiter'); ?></dt>
-                            <dd><?php echo ! empty($settings['xmlrpc_require_application_password']) ? esc_html__('Application passwords only', 'luma-login-limiter') : esc_html__('Standard passwords allowed', 'luma-login-limiter'); ?></dd>
-                        </div>
-                    </dl>
-                </section>
-
-                <section class="luma-card">
-                    <h2><?php esc_html_e('Recent gateway activity', 'luma-login-limiter'); ?></h2>
-                    <ul class="luma-gateway-list">
-                        <li>
-                            <span><?php esc_html_e('Browser login', 'luma-login-limiter'); ?></span>
-                            <strong><?php echo esc_html((string) ($gateway_counts['wp-login'] ?? 0)); ?></strong>
-                        </li>
-                        <li>
-                            <span><?php esc_html_e('Paywall / custom login', 'luma-login-limiter'); ?></span>
-                            <strong><?php echo esc_html((string) ($gateway_counts['paywall'] ?? 0)); ?></strong>
-                        </li>
-                        <li>
-                            <span><?php esc_html_e('XML-RPC', 'luma-login-limiter'); ?></span>
-                            <strong><?php echo esc_html((string) ($gateway_counts['xmlrpc'] ?? 0)); ?></strong>
-                        </li>
-                    </ul>
-                    <p class="description"><?php esc_html_e('Counts are based on the recent event log kept locally by this plugin.', 'luma-login-limiter'); ?></p>
-                </section>
-
-                <section class="luma-card luma-card-help">
-                    <h2><?php esc_html_e('Custom login integration', 'luma-login-limiter'); ?></h2>
-                    <p><?php esc_html_e('For a paywall or frontend form, mark the request as paywall before authenticating. This keeps counters and logs separate from wp-login.php.', 'luma-login-limiter'); ?></p>
-                    <pre><code>luma_login_limiter_mark_gateway( 'paywall' );
-$user = wp_signon( $credentials );</code></pre>
-                    <p><?php esc_html_e('Or use the helper function included by the plugin:', 'luma-login-limiter'); ?></p>
-                    <pre><code>$user = luma_login_limiter_authenticate_paywall_credentials( $username, $password, true );</code></pre>
-                </section>
-            </div>
-
             <div class="luma-layout-grid">
-                <section class="luma-card luma-card-form">
+                <section class="luma-card luma-card-form luma-card-full">
                     <h2><?php esc_html_e('Protection settings', 'luma-login-limiter'); ?></h2>
                     <p class="description"><?php esc_html_e('These settings control XML-RPC access, gateway-specific thresholds, lockout escalation, and the amount of detail stored in local logs.', 'luma-login-limiter'); ?></p>
 
@@ -227,107 +202,269 @@ $user = wp_signon( $credentials );</code></pre>
                         </div>
                     </form>
                 </section>
-
-                <div class="luma-side-column">
-                    <section class="luma-card">
-                        <div class="luma-card-header">
-                            <h2><?php esc_html_e('Active lockouts', 'luma-login-limiter'); ?></h2>
-                            <span class="luma-pill"><?php echo esc_html((string) count($lockouts)); ?></span>
-                        </div>
-                        <?php if (empty($lockouts)) : ?>
-                            <p class="luma-empty-state"><?php esc_html_e('No active lockouts right now. When a threshold is exceeded, matching IP and username lockouts will appear here for local review and manual unlock.', 'luma-login-limiter'); ?></p>
-                        <?php else : ?>
-                            <div class="luma-table-wrap">
-                                <table class="widefat striped luma-table">
-                                    <thead>
-                                        <tr>
-                                            <th><?php esc_html_e('Gateway', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Scope', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Value', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Reason', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Unlocks in', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Action', 'luma-login-limiter'); ?></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($lockouts as $lockout) : ?>
-                                            <tr>
-                                                <td><?php echo esc_html($lockout['gateway']); ?></td>
-                                                <td><?php echo esc_html($lockout['scope']); ?></td>
-                                                <td><?php echo esc_html($lockout['value']); ?></td>
-                                                <td><?php echo esc_html((string) ($lockout['reason'] ?? 'rate_limited')); ?></td>
-                                                <td><?php echo esc_html($this->human_remaining_time((int) $lockout['until'])); ?></td>
-                                                <td>
-                                                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                                                        <?php wp_nonce_field('luma_login_limiter_unlock'); ?>
-                                                        <input type="hidden" name="action" value="luma_login_limiter_unlock" />
-                                                        <input type="hidden" name="gateway" value="<?php echo esc_attr((string) $lockout['gateway']); ?>" />
-                                                        <input type="hidden" name="scope" value="<?php echo esc_attr((string) $lockout['scope']); ?>" />
-                                                        <input type="hidden" name="value" value="<?php echo esc_attr((string) $lockout['value']); ?>" />
-                                                        <button type="submit" class="button"><?php esc_html_e('Unlock', 'luma-login-limiter'); ?></button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    </section>
-
-                    <section class="luma-card">
-                        <div class="luma-card-header">
-                            <h2><?php esc_html_e('Recent auth events', 'luma-login-limiter'); ?></h2>
-                            <span class="luma-pill"><?php echo esc_html((string) count($logs)); ?></span>
-                        </div>
-                        <?php if (empty($logs)) : ?>
-                            <p class="luma-empty-state"><?php esc_html_e('No events recorded yet. Login attempts, denials, disabled XML-RPC methods, and lockouts will appear here.', 'luma-login-limiter'); ?></p>
-                        <?php else : ?>
-                            <div class="luma-table-wrap">
-                                <table class="widefat striped luma-table">
-                                    <thead>
-                                        <tr>
-                                            <th><?php esc_html_e('Time', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Gateway', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('User', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('IP', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Outcome', 'luma-login-limiter'); ?></th>
-                                            <th><?php esc_html_e('Reason', 'luma-login-limiter'); ?></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($logs as $log) : ?>
-                                            <tr>
-                                                <td><?php echo esc_html($this->format_timestamp((string) ($log['timestamp'] ?? ''))); ?></td>
-                                                <td><?php echo esc_html((string) ($log['gateway'] ?? '')); ?></td>
-                                                <td><?php echo esc_html((string) ($log['username'] ?: '—')); ?></td>
-                                                <td><?php echo esc_html((string) ($log['ip'] ?: '—')); ?></td>
-                                                <td><span class="luma-status luma-status-<?php echo esc_attr((string) ($log['outcome'] ?? 'info')); ?>"><?php echo esc_html((string) ($log['outcome'] ?? '')); ?></span></td>
-                                                <td><?php echo esc_html((string) ($log['reason_code'] ?? '')); ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    </section>
-                </div>
             </div>
         </div>
         <?php
     }
 
-    private function manage_capability(): string {
+    public function render_activity_page(): void {
+        if (! current_user_can($this->activity_manage_capability())) {
+            wp_die(esc_html__('You do not have permission to view login protection activity.', 'luma-login-limiter'));
+        }
+
+        $this->state->cleanup($this->settings);
+
+        $settings        = $this->settings->all();
+        $lockouts        = $this->rate_limiter->active_lockouts();
+        $logs            = $this->state->logs(25);
+        $trusted_headers = $this->ip_resolver->supported_headers();
+        $failed_total    = $this->state->outcome_total('failed');
+        $failed_last_day = $this->count_outcomes_in_last_day($logs, array('failed'));
+        $locked_last_day = $this->count_outcomes_in_last_day($logs, array('locked'));
+        $denied_last_day = $this->count_denied_in_last_day($logs);
+        $gateway_counts  = $this->summarize_gateways($logs);
+        ?>
+        <div class="wrap luma-login-limiter-admin">
+            <div class="luma-hero">
+                <div>
+                    <p class="luma-kicker"><?php esc_html_e('Authentication hardening', 'luma-login-limiter'); ?></p>
+                    <h1><?php esc_html_e('Login Lockouts & Log', 'luma-login-limiter'); ?></h1>
+                    <p class="luma-intro"><?php esc_html_e('Review current lockouts, recent auth events, and gateway activity without leaving the Users area.', 'luma-login-limiter'); ?></p>
+                </div>
+                <div class="luma-hero-badges">
+                    <span class="luma-badge"><?php esc_html_e('Local audit trail', 'luma-login-limiter'); ?></span>
+                    <span class="luma-badge"><?php esc_html_e('Manual unlock controls', 'luma-login-limiter'); ?></span>
+                    <span class="luma-badge"><?php esc_html_e('Gateway visibility', 'luma-login-limiter'); ?></span>
+                </div>
+            </div>
+
+            <?php $this->render_notice(); ?>
+
+            <div class="luma-metric-grid">
+                <section class="luma-card luma-card-metric">
+                    <dt><?php esc_html_e('Active lockouts', 'luma-login-limiter'); ?></dt>
+                    <dd><?php echo esc_html((string) count($lockouts)); ?></dd>
+                </section>
+
+                <section class="luma-card luma-card-metric">
+                    <dt><?php esc_html_e('Total failed login attempts', 'luma-login-limiter'); ?></dt>
+                    <dd><?php echo esc_html((string) $failed_total); ?></dd>
+                </section>
+
+                <section class="luma-card luma-card-metric">
+                    <dt><?php esc_html_e('Failed logins in 24h', 'luma-login-limiter'); ?></dt>
+                    <dd><?php echo esc_html((string) $failed_last_day); ?></dd>
+                </section>
+
+                <section class="luma-card luma-card-metric">
+                    <dt><?php esc_html_e('Locked in 24h', 'luma-login-limiter'); ?></dt>
+                    <dd><?php echo esc_html((string) $locked_last_day); ?></dd>
+                </section>
+
+                <section class="luma-card luma-card-metric">
+                    <dt><?php esc_html_e('Denied or locked in 24h', 'luma-login-limiter'); ?></dt>
+                    <dd><?php echo esc_html((string) $denied_last_day); ?></dd>
+                </section>
+            </div>
+
+            <div class="luma-summary-grid">
+                <section class="luma-card">
+                    <h2><?php esc_html_e('Current configuration', 'luma-login-limiter'); ?></h2>
+                    <dl class="luma-stat-list">
+                        <div>
+                            <dt><?php esc_html_e('Trusted IP source', 'luma-login-limiter'); ?></dt>
+                            <dd><?php echo esc_html($trusted_headers[$settings['trusted_ip_header']] ?? $settings['trusted_ip_header']); ?></dd>
+                        </div>
+                        <div>
+                            <dt><?php esc_html_e('XML-RPC password mode', 'luma-login-limiter'); ?></dt>
+                            <dd><?php echo ! empty($settings['xmlrpc_require_application_password']) ? esc_html__('Application passwords only', 'luma-login-limiter') : esc_html__('Standard passwords allowed', 'luma-login-limiter'); ?></dd>
+                        </div>
+                    </dl>
+                </section>
+
+                <section class="luma-card">
+                    <h2><?php esc_html_e('Recent gateway activity', 'luma-login-limiter'); ?></h2>
+                    <ul class="luma-gateway-list">
+                        <li>
+                            <span><?php esc_html_e('Browser login', 'luma-login-limiter'); ?></span>
+                            <strong><?php echo esc_html((string) ($gateway_counts['wp-login'] ?? 0)); ?></strong>
+                        </li>
+                        <li>
+                            <span><?php esc_html_e('Paywall / custom login', 'luma-login-limiter'); ?></span>
+                            <strong><?php echo esc_html((string) ($gateway_counts['paywall'] ?? 0)); ?></strong>
+                        </li>
+                        <li>
+                            <span><?php esc_html_e('XML-RPC', 'luma-login-limiter'); ?></span>
+                            <strong><?php echo esc_html((string) ($gateway_counts['xmlrpc'] ?? 0)); ?></strong>
+                        </li>
+                    </ul>
+                    <p class="description"><?php esc_html_e('Counts are based on the recent event log kept locally by this plugin.', 'luma-login-limiter'); ?></p>
+                </section>
+            </div>
+
+            <section class="luma-card luma-card-full">
+                <div class="luma-card-header">
+                    <h2><?php esc_html_e('Active lockouts', 'luma-login-limiter'); ?></h2>
+                    <span class="luma-pill"><?php echo esc_html((string) count($lockouts)); ?></span>
+                </div>
+                <?php if (empty($lockouts)) : ?>
+                    <p class="luma-empty-state"><?php esc_html_e('No active lockouts right now. When a threshold is exceeded, matching IP and username lockouts will appear here for local review and manual unlock.', 'luma-login-limiter'); ?></p>
+                <?php else : ?>
+                    <div class="luma-table-wrap">
+                        <table class="widefat striped luma-table">
+                            <thead>
+                                <tr>
+                                    <th><?php esc_html_e('Gateway', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Scope', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Value', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Username', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('IP', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Reason', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Unlocks in', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Action', 'luma-login-limiter'); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($lockouts as $lockout) : ?>
+                                    <tr>
+                                        <td><?php echo esc_html($lockout['gateway']); ?></td>
+                                        <td><?php echo esc_html($lockout['scope']); ?></td>
+                                        <td><?php echo esc_html($lockout['value']); ?></td>
+                                        <td><?php echo esc_html((string) (($lockout['username'] ?? '') ?: '—')); ?></td>
+                                        <td><?php echo esc_html((string) (($lockout['ip'] ?? '') ?: '—')); ?></td>
+                                        <td><?php echo esc_html((string) ($lockout['reason'] ?? 'rate_limited')); ?></td>
+                                        <td><?php echo esc_html($this->human_remaining_time((int) $lockout['until'])); ?></td>
+                                        <td>
+                                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                                <?php wp_nonce_field('luma_login_limiter_unlock'); ?>
+                                                <input type="hidden" name="action" value="luma_login_limiter_unlock" />
+                                                <input type="hidden" name="gateway" value="<?php echo esc_attr((string) $lockout['gateway']); ?>" />
+                                                <input type="hidden" name="scope" value="<?php echo esc_attr((string) $lockout['scope']); ?>" />
+                                                <input type="hidden" name="value" value="<?php echo esc_attr((string) $lockout['value']); ?>" />
+                                                <button type="submit" class="button"><?php esc_html_e('Unlock', 'luma-login-limiter'); ?></button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </section>
+
+            <div class="luma-layout-grid">
+                <section class="luma-card luma-card-log luma-card-full">
+                    <div class="luma-card-header">
+                        <h2><?php esc_html_e('Recent auth events', 'luma-login-limiter'); ?></h2>
+                        <span class="luma-pill"><?php echo esc_html((string) count($logs)); ?></span>
+                    </div>
+                    <?php if (empty($logs)) : ?>
+                        <p class="luma-empty-state"><?php esc_html_e('No events recorded yet. Login attempts, denials, disabled XML-RPC methods, and lockouts will appear here.', 'luma-login-limiter'); ?></p>
+                    <?php else : ?>
+                        <div class="luma-table-wrap">
+                            <table class="widefat striped luma-table">
+                                <thead>
+                                    <tr>
+                                        <th><?php esc_html_e('Time', 'luma-login-limiter'); ?></th>
+                                        <th><?php esc_html_e('Gateway', 'luma-login-limiter'); ?></th>
+                                        <th><?php esc_html_e('User', 'luma-login-limiter'); ?></th>
+                                        <th><?php esc_html_e('IP', 'luma-login-limiter'); ?></th>
+                                        <th><?php esc_html_e('Outcome', 'luma-login-limiter'); ?></th>
+                                        <th><?php esc_html_e('Reason', 'luma-login-limiter'); ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($logs as $log) : ?>
+                                        <tr>
+                                            <td><?php echo esc_html($this->format_timestamp((string) ($log['timestamp'] ?? ''))); ?></td>
+                                            <td><?php echo esc_html((string) ($log['gateway'] ?? '')); ?></td>
+                                            <td><?php echo esc_html((string) ($log['username'] ?: '—')); ?></td>
+                                            <td><?php echo esc_html((string) ($log['ip'] ?: '—')); ?></td>
+                                            <td><span class="luma-status luma-status-<?php echo esc_attr((string) ($log['outcome'] ?? 'info')); ?>"><?php echo esc_html((string) ($log['outcome'] ?? '')); ?></span></td>
+                                            <td><?php echo esc_html((string) ($log['reason_code'] ?? '')); ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </section>
+            </div>
+        </div>
+        <?php
+    }
+
+    private function activity_manage_capability(): string {
         return (string) apply_filters('luma_login_limiter_manage_capability', 'manage_options');
     }
 
+    private function settings_manage_capability(): string {
+        if (is_multisite()) {
+            return (string) apply_filters('luma_login_limiter_network_manage_capability', 'manage_network_options');
+        }
+
+        return $this->activity_manage_capability();
+    }
+
+    private function unlock_matching_lockouts(string $gateway, string $scope, string $value): void {
+        $selected_lockout = null;
+
+        foreach ($this->rate_limiter->active_lockouts() as $lockout) {
+            if ($gateway !== (string) ($lockout['gateway'] ?? '')) {
+                continue;
+            }
+
+            if ($scope !== (string) ($lockout['scope'] ?? '')) {
+                continue;
+            }
+
+            if ($value !== (string) ($lockout['value'] ?? '')) {
+                continue;
+            }
+
+            $selected_lockout = $lockout;
+            break;
+        }
+
+        $this->rate_limiter->unlock($gateway, $scope, $value);
+
+        if (! is_array($selected_lockout)) {
+            return;
+        }
+
+        $selected_ip       = (string) ($selected_lockout['ip'] ?? '');
+        $selected_username = (string) ($selected_lockout['username'] ?? '');
+
+        if ('' !== $selected_ip && ('ip' !== $scope || $selected_ip !== $value)) {
+            $this->rate_limiter->unlock($gateway, 'ip', $selected_ip);
+        }
+
+        if ('' !== $selected_username && ('username' !== $scope || strtolower($selected_username) !== strtolower($value))) {
+            $this->rate_limiter->unlock($gateway, 'username', $selected_username);
+        }
+    }
+
     private function admin_url(string $notice): string {
+        $base_url = is_multisite()
+            ? network_admin_url('settings.php')
+            : admin_url('options-general.php');
+
         return add_query_arg(
             array(
-                'page'   => self::PAGE_SLUG,
+                'page'        => self::PAGE_SLUG,
                 'luma_notice' => $notice,
             ),
-            admin_url('options-general.php')
+            $base_url
+        );
+    }
+
+    private function users_admin_url(string $notice): string {
+        return add_query_arg(
+            array(
+                'page'        => self::USERS_PAGE_SLUG,
+                'luma_notice' => $notice,
+            ),
+            admin_url('users.php')
         );
     }
 
@@ -447,6 +584,14 @@ $user = wp_signon( $credentials );</code></pre>
      * @param array<int, array<string, mixed>> $logs
      */
     private function count_denied_in_last_day(array $logs): int {
+        return $this->count_outcomes_in_last_day($logs, array('denied', 'locked'));
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $logs
+     * @param array<int, string> $outcomes
+     */
+    private function count_outcomes_in_last_day(array $logs, array $outcomes): int {
         $cutoff = time() - DAY_IN_SECONDS;
         $count  = 0;
 
@@ -458,7 +603,7 @@ $user = wp_signon( $credentials );</code></pre>
                 continue;
             }
 
-            if (in_array($outcome, array('denied', 'failed', 'locked'), true)) {
+            if (in_array($outcome, $outcomes, true)) {
                 $count++;
             }
         }

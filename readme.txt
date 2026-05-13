@@ -4,7 +4,7 @@ Tags: security, login, xml-rpc, rate-limit, authentication
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,7 +39,7 @@ Key features:
 
 1. Upload the plugin folder to `/wp-content/plugins/`.
 2. Activate the plugin through the `Plugins` screen in WordPress.
-3. Visit `Settings > Luma Login Limiter`.
+3. Visit `Settings > Luma Login Limiter` on single-site installs, or `Network Admin > Settings > Luma Login Limiter` on multisite.
 4. Configure XML-RPC allowlists, thresholds, and trusted IP handling.
 
 == Frequently Asked Questions ==
@@ -52,9 +52,19 @@ No. The plugin keeps XML-RPC available, but authentication is restricted to expl
 
 Call `luma_login_limiter_mark_gateway( 'paywall' );` before `wp_signon()`, or use `luma_login_limiter_authenticate_paywall_credentials()`.
 
+Most custom login forms are already covered if they still use normal WordPress authentication. Requests outside `wp-login.php` are usually treated as paywall traffic by default.
+
+Use the helper anyway when you control the login form. It makes the integration explicit and avoids relying on fallback detection.
+
+= Will every third-party login form be protected automatically? =
+
+No. Third-party forms that still use normal WordPress authentication are usually covered. Forms that authenticate against an external service or create their own login/session flow can bypass this plugin unless they are integrated deliberately.
+
 = Where is the plugin state stored? =
 
-The plugin stores its settings and local state in the WordPress options table using `luma_login_limiter_settings` and `luma_login_limiter_state`.
+On single-site installs, the plugin stores both settings and local state in the WordPress options table using `luma_login_limiter_settings` and `luma_login_limiter_state`.
+
+On multisite installs, shared settings are stored as a network option and managed from Network Admin, while lockouts, counters, and logs remain per-site in `luma_login_limiter_state`.
 
 = Is the plugin translation-ready? =
 
@@ -65,6 +75,12 @@ Yes. The plugin uses the `luma-login-limiter` text domain and ships with a `lang
 No. Super admins are not automatically bypassed. If you want a recovery path, configure the emergency bypass username explicitly.
 
 == Changelog ==
+
+= 0.2.0 =
+
+* Move lockout status, active lockouts, and recent auth log to a per-site Users submenu.
+* Move shared plugin settings into Network Admin on multisite.
+* Keep lockout counters, logs, and unlock actions per site on multisite.
 
 = 0.1.0 =
 

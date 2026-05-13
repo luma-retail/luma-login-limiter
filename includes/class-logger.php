@@ -24,6 +24,8 @@ final class Logger implements Logger_Interface {
     public function log(string $level, string $event, array $context = array()): void {
         $level = isset(self::LEVELS[$level]) ? $level : 'info';
 
+        $this->state->increment_outcome_total((string) ($context['outcome'] ?? ''));
+
         if (! $this->should_log($level)) {
             return;
         }

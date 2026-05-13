@@ -36,6 +36,19 @@ final class Settings {
     }
 
     public function activate(): void {
+        if ($this->use_network_settings()) {
+            if (false !== get_site_option(self::OPTION_NAME, false)) {
+                return;
+            }
+
+            $seed = get_option(self::OPTION_NAME, false);
+            $seed = is_array($seed) ? array_merge($this->defaults(), $seed) : $this->defaults();
+
+            add_site_option(self::OPTION_NAME, $seed);
+
+            return;
+        }
+
         if (false === get_option(self::OPTION_NAME, false)) {
             add_option(self::OPTION_NAME, $this->defaults(), '', false);
         }
@@ -49,7 +62,9 @@ final class Settings {
             return $this->settings;
         }
 
-        $stored = get_option(self::OPTION_NAME, array());
+        $stored = $this->use_network_settings()
+            ? get_site_option(self::OPTION_NAME, array())
+            : get_option(self::OPTION_NAME, array());
         $stored = is_array($stored) ? $stored : array();
         $this->settings = array_merge($this->defaults(), $stored);
 
@@ -61,8 +76,18 @@ final class Settings {
      */
     public function update(array $raw): void {
         $settings = $this->sanitize($raw);
-        update_option(self::OPTION_NAME, $settings, false);
+
+        if ($this->use_network_settings()) {
+            update_site_option(self::OPTION_NAME, $settings);
+        } else {
+            update_option(self::OPTION_NAME, $settings, false);
+        }
+
         $this->settings = $settings;
+    }
+
+    private function use_network_settings(): bool {
+        return is_multisite();
     }
 
     public function threshold_for(string $gateway): int {

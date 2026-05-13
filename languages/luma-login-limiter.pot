@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Luma Login Limiter 0.1.0\n"
+"Project-Id-Version: Luma Login Limiter 0.2.0\n"
 "Report-Msgid-Bugs-To: https://github.com/luma-retail/luma-login-limiter/issues\n"
 "POT-Creation-Date: 2026-05-12 00:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"

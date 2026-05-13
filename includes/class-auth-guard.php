@@ -57,7 +57,7 @@ final class Auth_Guard {
 
                 return new WP_Error(
                     'luma_rate_limited',
-                    __('Too many recent login failures. Please wait before trying again.', 'luma-login-limiter')
+                    $this->lockout_message($lockout)
                 );
             }
         }
@@ -102,6 +102,30 @@ final class Auth_Guard {
         $ip      = $this->ip_resolver->resolve();
 
         if ($user instanceof WP_User) {
+            if (! $this->is_emergency_bypass($username)) {
+                $lockout = $this->rate_limiter->active_lockout($gateway, $ip, $username);
+
+                if (is_array($lockout)) {
+                    $this->logger->log(
+                        'warning',
+                        'auth_locked',
+                        array(
+                            'gateway'     => $gateway,
+                            'username'    => $username,
+                            'ip'          => $ip,
+                            'outcome'     => 'locked',
+                            'reason_code' => 'rate_limited',
+                            'lockout'     => $lockout,
+                        )
+                    );
+
+                    return new WP_Error(
+                        'luma_rate_limited',
+                        $this->lockout_message($lockout)
+                    );
+                }
+            }
+
             if ('xmlrpc' === $gateway && $this->settings->xmlrpc_requires_application_password() && ! $this->used_application_password) {
                 if (! $this->is_emergency_bypass($username)) {
                     $lockouts = $this->rate_limiter->register_failure('xmlrpc', $ip, $username, 'xmlrpc_application_password_required');
@@ -269,6 +293,27 @@ final class Auth_Guard {
         $codes = $error->get_error_codes();
 
         return (string) ($codes[0] ?? 'authentication_failed');
+    }
+
+    /**
+     * @param array<string, mixed> $lockout
+     */
+    private function lockout_message(array $lockout): string {
+        $until = (int) ($lockout['until'] ?? 0);
+
+        if ($until <= time()) {
+            return __('Too many recent login failures. Please try again shortly.', 'luma-login-limiter');
+        }
+
+        $remaining = $until - time();
+        $wait_time = $remaining < MINUTE_IN_SECONDS
+            ? __('less than a minute', 'luma-login-limiter')
+            : human_time_diff(time(), $until);
+
+        return sprintf(
+            __('Too many recent login failures. Please try again in %s.', 'luma-login-limiter'),
+            $wait_time
+        );
     }
 
     /**
