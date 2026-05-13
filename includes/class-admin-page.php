@@ -73,7 +73,7 @@ final class Admin_Page {
             'luma-login-limiter-admin',
             plugins_url('assets/admin.css', dirname(__DIR__) . '/luma-login-limiter.php'),
             array(),
-            '0.2.0'
+            '0.2.1'
         );
     }
 
@@ -321,28 +321,44 @@ final class Admin_Page {
                                     <th><?php esc_html_e('IP', 'luma-login-limiter'); ?></th>
                                     <th><?php esc_html_e('Reason', 'luma-login-limiter'); ?></th>
                                     <th><?php esc_html_e('Unlocks in', 'luma-login-limiter'); ?></th>
-                                    <th><?php esc_html_e('Action', 'luma-login-limiter'); ?></th>
+                                    <th><?php esc_html_e('Actions', 'luma-login-limiter'); ?></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($lockouts as $lockout) : ?>
+                                    <?php $lockout_username = (string) ($lockout['username'] ?? ''); ?>
+                                    <?php $lockout_ip = (string) ($lockout['ip'] ?? ''); ?>
                                     <tr>
                                         <td><?php echo esc_html($lockout['gateway']); ?></td>
                                         <td><?php echo esc_html($lockout['scope']); ?></td>
                                         <td><?php echo esc_html($lockout['value']); ?></td>
-                                        <td><?php echo esc_html((string) (($lockout['username'] ?? '') ?: '—')); ?></td>
-                                        <td><?php echo esc_html((string) (($lockout['ip'] ?? '') ?: '—')); ?></td>
+                                        <td><?php echo esc_html($lockout_username ?: '—'); ?></td>
+                                        <td><?php echo esc_html($lockout_ip ?: '—'); ?></td>
                                         <td><?php echo esc_html((string) ($lockout['reason'] ?? 'rate_limited')); ?></td>
                                         <td><?php echo esc_html($this->human_remaining_time((int) $lockout['until'])); ?></td>
                                         <td>
-                                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                                                <?php wp_nonce_field('luma_login_limiter_unlock'); ?>
-                                                <input type="hidden" name="action" value="luma_login_limiter_unlock" />
-                                                <input type="hidden" name="gateway" value="<?php echo esc_attr((string) $lockout['gateway']); ?>" />
-                                                <input type="hidden" name="scope" value="<?php echo esc_attr((string) $lockout['scope']); ?>" />
-                                                <input type="hidden" name="value" value="<?php echo esc_attr((string) $lockout['value']); ?>" />
-                                                <button type="submit" class="button"><?php esc_html_e('Unlock', 'luma-login-limiter'); ?></button>
-                                            </form>
+                                            <div class="luma-lockout-actions">
+                                                <?php if ('username' === (string) $lockout['scope'] && '' !== $lockout_username) : ?>
+                                                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                                        <?php wp_nonce_field('luma_login_limiter_unlock'); ?>
+                                                        <input type="hidden" name="action" value="luma_login_limiter_unlock" />
+                                                        <input type="hidden" name="gateway" value="<?php echo esc_attr((string) $lockout['gateway']); ?>" />
+                                                        <input type="hidden" name="scope" value="username" />
+                                                        <input type="hidden" name="value" value="<?php echo esc_attr($lockout_username); ?>" />
+                                                        <button type="submit" class="button"><?php esc_html_e('Unlock user', 'luma-login-limiter'); ?></button>
+                                                    </form>
+                                                <?php endif; ?>
+                                                <?php if ('ip' === (string) $lockout['scope'] && '' !== $lockout_ip) : ?>
+                                                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                                        <?php wp_nonce_field('luma_login_limiter_unlock'); ?>
+                                                        <input type="hidden" name="action" value="luma_login_limiter_unlock" />
+                                                        <input type="hidden" name="gateway" value="<?php echo esc_attr((string) $lockout['gateway']); ?>" />
+                                                        <input type="hidden" name="scope" value="ip" />
+                                                        <input type="hidden" name="value" value="<?php echo esc_attr($lockout_ip); ?>" />
+                                                        <button type="submit" class="button"><?php esc_html_e('Unlock IP', 'luma-login-limiter'); ?></button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -407,41 +423,7 @@ final class Admin_Page {
     }
 
     private function unlock_matching_lockouts(string $gateway, string $scope, string $value): void {
-        $selected_lockout = null;
-
-        foreach ($this->rate_limiter->active_lockouts() as $lockout) {
-            if ($gateway !== (string) ($lockout['gateway'] ?? '')) {
-                continue;
-            }
-
-            if ($scope !== (string) ($lockout['scope'] ?? '')) {
-                continue;
-            }
-
-            if ($value !== (string) ($lockout['value'] ?? '')) {
-                continue;
-            }
-
-            $selected_lockout = $lockout;
-            break;
-        }
-
         $this->rate_limiter->unlock($gateway, $scope, $value);
-
-        if (! is_array($selected_lockout)) {
-            return;
-        }
-
-        $selected_ip       = (string) ($selected_lockout['ip'] ?? '');
-        $selected_username = (string) ($selected_lockout['username'] ?? '');
-
-        if ('' !== $selected_ip && ('ip' !== $scope || $selected_ip !== $value)) {
-            $this->rate_limiter->unlock($gateway, 'ip', $selected_ip);
-        }
-
-        if ('' !== $selected_username && ('username' !== $scope || strtolower($selected_username) !== strtolower($value))) {
-            $this->rate_limiter->unlock($gateway, 'username', $selected_username);
-        }
     }
 
     private function admin_url(string $notice): string {

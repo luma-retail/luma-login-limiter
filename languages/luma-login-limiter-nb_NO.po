@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Luma Login Limiter 0.2.0\n"
+"Project-Id-Version: Luma Login Limiter 0.2.1\n"
 "Report-Msgid-Bugs-To: https://github.com/luma-retail/luma-login-"
 "limiter/issues\n"
 "POT-Creation-Date: 2026-05-13 07:55+0000\n"
@@ -15,6 +15,18 @@ msgstr ""
 "Language: nb_NO\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Loco-Version: 2.8.4; wp-6.9.4; php-8.5.6"
+
+#: includes/class-admin-page.php:324
+msgid "Actions"
+msgstr "Handlinger"
+
+#: includes/class-admin-page.php:348
+msgid "Unlock user"
+msgstr "Lås opp bruker"
+
+#: includes/class-admin-page.php:358
+msgid "Unlock IP"
+msgstr "Lås opp IP"
 
 #: includes/class-admin-page.php:324
 msgid "Action"

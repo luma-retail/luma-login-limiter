@@ -301,6 +301,16 @@
     color: var(--luma-danger);
 }
 
+.luma-lockout-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.luma-lockout-actions form {
+    margin: 0;
+}
+
 .luma-actions {
     padding-top: 10px;
 }

@@ -96,6 +96,7 @@ final class Rate_Limiter {
     public function unlock(string $gateway, string $scope, string $value): void {
         $normalized_value = 'username' === $scope ? strtolower($value) : $value;
         $this->state->clear_lockout($gateway, $scope, $normalized_value);
+        $this->state->clear_counter($gateway, $scope, $normalized_value);
     }
 
     /**

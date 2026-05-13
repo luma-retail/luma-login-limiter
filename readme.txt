@@ -4,7 +4,7 @@ Tags: security, login, xml-rpc, rate-limit, authentication
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 0.2.0
+Stable tag: 0.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -75,6 +75,12 @@ Yes. The plugin uses the `luma-login-limiter` text domain and ships with a `lang
 No. Super admins are not automatically bypassed. If you want a recovery path, configure the emergency bypass username explicitly.
 
 == Changelog ==
+
+= 0.2.1 =
+
+* Add separate manual unlock actions for user and IP lockouts.
+* Keep each lockout row focused on its own scope to reduce admin UI confusion.
+* Make manual unlock clear the selected scope's current failure counter.
 
 = 0.2.0 =
 
