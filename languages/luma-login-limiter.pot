@@ -21,6 +21,26 @@ msgstr ""
 msgid "Action"
 msgstr ""
 
+#: includes/class-admin-page.php:232
+msgid "Review current lockouts, recent auth events, and gateway activity."
+msgstr ""
+
+#: includes/class-admin-page.php:497
+msgid "Failed"
+msgstr ""
+
+#: includes/class-admin-page.php:500
+msgid "Locked"
+msgstr ""
+
+#: includes/class-admin-page.php:503
+msgid "Denied"
+msgstr ""
+
+#: includes/class-admin-page.php:506
+msgid "Success"
+msgstr ""
+
 #: includes/class-admin-page.php:245 includes/class-admin-page.php:307
 msgid "Active lockouts"
 msgstr ""

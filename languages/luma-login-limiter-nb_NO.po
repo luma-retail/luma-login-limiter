@@ -342,12 +342,24 @@ msgid "Reverse proxy single IP (X-Real-IP)"
 msgstr "Enkelt IP bak omvendt proxy (X-Real-IP)"
 
 #: includes/class-admin-page.php:232
-msgid ""
-"Review current lockouts, recent auth events, and gateway activity without "
-"leaving the Users area."
-msgstr ""
-"Gå gjennom gjeldende utestengelser, nylige autentiseringshendelser og "
-"gateway-aktivitet uten å forlate Brukere-området."
+msgid "Review current lockouts, recent auth events, and gateway activity."
+msgstr "Gå gjennom gjeldende utestengelser, nylige autentiseringshendelser og gateway-aktivitet."
+
+#: includes/class-admin-page.php:497
+msgid "Failed"
+msgstr "Mislykket"
+
+#: includes/class-admin-page.php:500
+msgid "Locked"
+msgstr "Låst"
+
+#: includes/class-admin-page.php:503
+msgid "Denied"
+msgstr "Avvist"
+
+#: includes/class-admin-page.php:506
+msgid "Success"
+msgstr "Vellykket"
 
 #: includes/class-admin-page.php:201
 msgid "Save protection settings"

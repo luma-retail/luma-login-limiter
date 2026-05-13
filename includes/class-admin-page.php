@@ -229,7 +229,7 @@ final class Admin_Page {
                 <div>
                     <p class="luma-kicker"><?php esc_html_e('Authentication hardening', 'luma-login-limiter'); ?></p>
                     <h1><?php esc_html_e('Login Lockouts & Log', 'luma-login-limiter'); ?></h1>
-                    <p class="luma-intro"><?php esc_html_e('Review current lockouts, recent auth events, and gateway activity without leaving the Users area.', 'luma-login-limiter'); ?></p>
+                    <p class="luma-intro"><?php esc_html_e('Review current lockouts, recent auth events, and gateway activity.', 'luma-login-limiter'); ?></p>
                 </div>
                 <div class="luma-hero-badges">
                     <span class="luma-badge"><?php esc_html_e('Local audit trail', 'luma-login-limiter'); ?></span>
@@ -380,7 +380,7 @@ final class Admin_Page {
                                             <td><?php echo esc_html((string) ($log['gateway'] ?? '')); ?></td>
                                             <td><?php echo esc_html((string) ($log['username'] ?: '—')); ?></td>
                                             <td><?php echo esc_html((string) ($log['ip'] ?: '—')); ?></td>
-                                            <td><span class="luma-status luma-status-<?php echo esc_attr((string) ($log['outcome'] ?? 'info')); ?>"><?php echo esc_html((string) ($log['outcome'] ?? '')); ?></span></td>
+                                            <td><span class="luma-status luma-status-<?php echo esc_attr((string) ($log['outcome'] ?? 'info')); ?>"><?php echo esc_html($this->outcome_label((string) ($log['outcome'] ?? ''))); ?></span></td>
                                             <td><?php echo esc_html((string) ($log['reason_code'] ?? '')); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -488,6 +488,28 @@ final class Admin_Page {
             <span class="luma-field-help"><?php echo esc_html($description); ?></span>
         </label>
         <?php
+    }
+
+    private function outcome_label(string $outcome): string {
+        switch ($outcome) {
+            case 'failed':
+                return __('Failed', 'luma-login-limiter');
+
+            case 'locked':
+                return __('Locked', 'luma-login-limiter');
+
+            case 'denied':
+                return __('Denied', 'luma-login-limiter');
+
+            case 'success':
+                return __('Success', 'luma-login-limiter');
+        }
+
+        if ('' === $outcome) {
+            return '';
+        }
+
+        return ucwords(str_replace('_', ' ', $outcome));
     }
 
     private function render_text_field(string $name, string $label, string $description, string $value): void {
