@@ -214,15 +214,26 @@ final class Admin_Page {
 
         $this->state->cleanup($this->settings);
 
-        $settings        = $this->settings->all();
-        $lockouts        = $this->rate_limiter->active_lockouts();
-        $logs            = $this->state->logs(25);
+        $settings         = $this->settings->all();
+        $lockouts         = $this->rate_limiter->active_lockouts();
+        $all_logs         = $this->state->logs((int) $settings['max_log_entries']);
+        $logs_per_page    = 25;
+        $current_log_page = max(1, absint($_GET['luma_log_page'] ?? 1));
+        $total_logs       = count($all_logs);
+        $total_log_pages  = max(1, (int) ceil($total_logs / $logs_per_page));
+
+        if ($current_log_page > $total_log_pages) {
+            $current_log_page = $total_log_pages;
+        }
+
+        $logs_offset     = ($current_log_page - 1) * $logs_per_page;
+        $logs            = array_slice($all_logs, $logs_offset, $logs_per_page);
         $trusted_headers = $this->ip_resolver->supported_headers();
         $failed_total    = $this->state->outcome_total('failed');
-        $failed_last_day = $this->count_outcomes_in_last_day($logs, array('failed'));
-        $locked_last_day = $this->count_outcomes_in_last_day($logs, array('locked'));
-        $denied_last_day = $this->count_denied_in_last_day($logs);
-        $gateway_counts  = $this->summarize_gateways($logs);
+        $failed_last_day = $this->count_outcomes_in_last_day($all_logs, array('failed'));
+        $locked_last_day = $this->count_outcomes_in_last_day($all_logs, array('locked'));
+        $denied_last_day = $this->count_denied_in_last_day($all_logs);
+        $gateway_counts  = $this->summarize_gateways($all_logs);
         ?>
         <div class="wrap luma-login-limiter-admin">
             <div class="luma-hero">
@@ -372,7 +383,7 @@ final class Admin_Page {
                 <section class="luma-card luma-card-log luma-card-full">
                     <div class="luma-card-header">
                         <h2><?php esc_html_e('Recent auth events', 'luma-login-limiter'); ?></h2>
-                        <span class="luma-pill"><?php echo esc_html((string) count($logs)); ?></span>
+                        <span class="luma-pill"><?php echo esc_html((string) $total_logs); ?></span>
                     </div>
                     <?php if (empty($logs)) : ?>
                         <p class="luma-empty-state"><?php esc_html_e('No events recorded yet. Login attempts, denials, disabled XML-RPC methods, and lockouts will appear here.', 'luma-login-limiter'); ?></p>
@@ -403,6 +414,35 @@ final class Admin_Page {
                                 </tbody>
                             </table>
                         </div>
+                        <?php if ($total_log_pages > 1) : ?>
+                            <div class="tablenav bottom">
+                                <div class="tablenav-pages">
+                                    <?php
+                                    $base_url = add_query_arg(
+                                        array(
+                                            'page'          => self::USERS_PAGE_SLUG,
+                                            'luma_log_page' => '%#%',
+                                        ),
+                                        admin_url('users.php')
+                                    );
+
+                                    echo wp_kses_post(
+                                        paginate_links(
+                                            array(
+                                                'base'      => $base_url,
+                                                'format'    => '',
+                                                'current'   => $current_log_page,
+                                                'total'     => $total_log_pages,
+                                                'prev_text' => __('&laquo; Previous', 'luma-login-limiter'),
+                                                'next_text' => __('Next &raquo;', 'luma-login-limiter'),
+                                                'type'      => 'plain',
+                                            )
+                                        )
+                                    );
+                                    ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </section>
             </div>
