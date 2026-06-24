@@ -88,11 +88,17 @@ final class Admin_Page {
             'threshold_wp_login'                  => $_POST['threshold_wp_login'] ?? null,
             'threshold_paywall'                   => $_POST['threshold_paywall'] ?? null,
             'threshold_xmlrpc'                    => $_POST['threshold_xmlrpc'] ?? null,
+            'threshold_ip_wp_login'               => $_POST['threshold_ip_wp_login'] ?? null,
+            'threshold_ip_paywall'                => $_POST['threshold_ip_paywall'] ?? null,
+            'threshold_ip_xmlrpc'                 => $_POST['threshold_ip_xmlrpc'] ?? null,
             'reset_window_minutes'                => $_POST['reset_window_minutes'] ?? null,
             'base_lockout_minutes'                => $_POST['base_lockout_minutes'] ?? null,
+            'base_lockout_minutes_ip'             => $_POST['base_lockout_minutes_ip'] ?? null,
             'escalation_window_minutes'           => $_POST['escalation_window_minutes'] ?? null,
             'escalation_factor'                   => $_POST['escalation_factor'] ?? null,
             'escalation_cap'                      => $_POST['escalation_cap'] ?? null,
+            'escalation_factor_ip'                => $_POST['escalation_factor_ip'] ?? null,
+            'escalation_cap_ip'                   => $_POST['escalation_cap_ip'] ?? null,
             'xmlrpc_allowlist_users'              => $_POST['xmlrpc_allowlist_users'] ?? '',
             'xmlrpc_allowlist_capabilities'       => $_POST['xmlrpc_allowlist_capabilities'] ?? '',
             'xmlrpc_require_application_password' => $_POST['xmlrpc_require_application_password'] ?? '',
@@ -168,9 +174,12 @@ final class Admin_Page {
                         <div class="luma-form-section">
                             <h3><?php esc_html_e('Gateway thresholds', 'luma-login-limiter'); ?></h3>
                             <div class="luma-field-grid">
-                                <?php $this->render_number_field('threshold_wp_login', __('wp-login threshold', 'luma-login-limiter'), __('Failures before browser login is locked.', 'luma-login-limiter'), (int) $settings['threshold_wp_login'], 2); ?>
-                                <?php $this->render_number_field('threshold_paywall', __('Paywall threshold', 'luma-login-limiter'), __('Failures before paywall or frontend login is locked.', 'luma-login-limiter'), (int) $settings['threshold_paywall'], 2); ?>
-                                <?php $this->render_number_field('threshold_xmlrpc', __('XML-RPC threshold', 'luma-login-limiter'), __('Failures before XML-RPC is locked for the matching IP or username.', 'luma-login-limiter'), (int) $settings['threshold_xmlrpc'], 1); ?>
+                                <?php $this->render_number_field('threshold_wp_login', __('wp-login username threshold', 'luma-login-limiter'), __('Username failures before browser login is locked.', 'luma-login-limiter'), (int) $settings['threshold_wp_login'], 2); ?>
+                                <?php $this->render_number_field('threshold_paywall', __('Paywall username threshold', 'luma-login-limiter'), __('Username failures before paywall or frontend login is locked.', 'luma-login-limiter'), (int) $settings['threshold_paywall'], 2); ?>
+                                <?php $this->render_number_field('threshold_xmlrpc', __('XML-RPC username threshold', 'luma-login-limiter'), __('Username failures before XML-RPC username lockout is triggered.', 'luma-login-limiter'), (int) $settings['threshold_xmlrpc'], 1); ?>
+                                <?php $this->render_number_field('threshold_ip_wp_login', __('wp-login IP threshold', 'luma-login-limiter'), __('IP failures before browser login IP lockout is triggered.', 'luma-login-limiter'), (int) $settings['threshold_ip_wp_login'], 2); ?>
+                                <?php $this->render_number_field('threshold_ip_paywall', __('Paywall IP threshold', 'luma-login-limiter'), __('IP failures before paywall or frontend login IP lockout is triggered.', 'luma-login-limiter'), (int) $settings['threshold_ip_paywall'], 2); ?>
+                                <?php $this->render_number_field('threshold_ip_xmlrpc', __('XML-RPC IP threshold', 'luma-login-limiter'), __('IP failures before XML-RPC IP lockout is triggered.', 'luma-login-limiter'), (int) $settings['threshold_ip_xmlrpc'], 1); ?>
                             </div>
                         </div>
 
@@ -178,10 +187,13 @@ final class Admin_Page {
                             <h3><?php esc_html_e('Lockout timing', 'luma-login-limiter'); ?></h3>
                             <div class="luma-field-grid">
                                 <?php $this->render_number_field('reset_window_minutes', __('Failure reset window (minutes)', 'luma-login-limiter'), __('Failures expire after this window if no new failures arrive.', 'luma-login-limiter'), (int) $settings['reset_window_minutes'], 5); ?>
-                                <?php $this->render_number_field('base_lockout_minutes', __('Base lockout (minutes)', 'luma-login-limiter'), __('The first lockout duration before escalation is applied.', 'luma-login-limiter'), (int) $settings['base_lockout_minutes'], 1); ?>
+                                <?php $this->render_number_field('base_lockout_minutes', __('Username base lockout (minutes)', 'luma-login-limiter'), __('The first username lockout duration before escalation is applied.', 'luma-login-limiter'), (int) $settings['base_lockout_minutes'], 1); ?>
+                                <?php $this->render_number_field('base_lockout_minutes_ip', __('IP base lockout (minutes)', 'luma-login-limiter'), __('The first IP lockout duration before escalation is applied.', 'luma-login-limiter'), (int) $settings['base_lockout_minutes_ip'], 1); ?>
                                 <?php $this->render_number_field('escalation_window_minutes', __('Escalation window (minutes)', 'luma-login-limiter'), __('Repeated lockouts inside this window will increase the duration.', 'luma-login-limiter'), (int) $settings['escalation_window_minutes'], 5); ?>
-                                <?php $this->render_number_field('escalation_factor', __('Escalation factor', 'luma-login-limiter'), __('Each repeated lockout multiplies the duration by this factor.', 'luma-login-limiter'), (int) $settings['escalation_factor'], 1); ?>
-                                <?php $this->render_number_field('escalation_cap', __('Escalation cap', 'luma-login-limiter'), __('Maximum duration multiplier applied to repeated lockouts.', 'luma-login-limiter'), (int) $settings['escalation_cap'], 1); ?>
+                                <?php $this->render_number_field('escalation_factor', __('Username escalation factor', 'luma-login-limiter'), __('Each repeated username lockout multiplies the duration by this factor.', 'luma-login-limiter'), (int) $settings['escalation_factor'], 1); ?>
+                                <?php $this->render_number_field('escalation_cap', __('Username escalation cap', 'luma-login-limiter'), __('Maximum duration multiplier applied to repeated username lockouts.', 'luma-login-limiter'), (int) $settings['escalation_cap'], 1); ?>
+                                <?php $this->render_number_field('escalation_factor_ip', __('IP escalation factor', 'luma-login-limiter'), __('Each repeated IP lockout multiplies the duration by this factor.', 'luma-login-limiter'), (int) $settings['escalation_factor_ip'], 1); ?>
+                                <?php $this->render_number_field('escalation_cap_ip', __('IP escalation cap', 'luma-login-limiter'), __('Maximum duration multiplier applied to repeated IP lockouts.', 'luma-login-limiter'), (int) $settings['escalation_cap_ip'], 1); ?>
                             </div>
                         </div>
 

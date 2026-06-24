@@ -45,9 +45,10 @@ final class Rate_Limiter {
      * @return array<int, array<string, mixed>>
      */
     public function register_failure(string $gateway, string $ip, string $username, string $reason): array {
-        $created   = array();
-        $threshold = $this->settings->threshold_for($gateway);
-        $metadata  = array(
+        $created            = array();
+        $ip_threshold       = $this->settings->threshold_for($gateway, 'ip');
+        $username_threshold = $this->settings->threshold_for($gateway, 'username');
+        $metadata           = array(
             'ip'       => $ip,
             'username' => $username,
             'reason'   => $reason,
@@ -62,7 +63,7 @@ final class Rate_Limiter {
             $this->settings->reset_window_seconds()
         );
 
-        if ((int) $ip_counter['count'] >= $threshold && null === $this->state->get_lockout($gateway, 'ip', $ip)) {
+        if ((int) $ip_counter['count'] >= $ip_threshold && null === $this->state->get_lockout($gateway, 'ip', $ip)) {
             $created[] = $this->create_lockout($gateway, 'ip', $ip, $reason, $ip, $username);
         }
 
@@ -77,7 +78,7 @@ final class Rate_Limiter {
                 $this->settings->reset_window_seconds()
             );
 
-            if ((int) $user_counter['count'] >= $threshold && null === $this->state->get_lockout($gateway, 'username', $username)) {
+            if ((int) $user_counter['count'] >= $username_threshold && null === $this->state->get_lockout($gateway, 'username', $username)) {
                 $created[] = $this->create_lockout($gateway, 'username', $username, $reason, $ip, $username);
             }
         }
@@ -124,8 +125,8 @@ final class Rate_Limiter {
             $this->settings->escalation_window_seconds()
         );
 
-        $factor      = min($this->settings->escalation_cap(), (int) pow($this->settings->escalation_factor(), $previous_count));
-        $duration    = $this->settings->base_lockout_seconds() * max(1, $factor);
+        $factor      = min($this->settings->escalation_cap($scope), (int) pow($this->settings->escalation_factor($scope), $previous_count));
+        $duration    = $this->settings->base_lockout_seconds($scope) * max(1, $factor);
         $created_at  = time();
         $lockout     = array(
             'created_at' => $created_at,

@@ -20,11 +20,17 @@ final class Settings {
             'threshold_wp_login'                  => 5,
             'threshold_paywall'                   => 5,
             'threshold_xmlrpc'                    => 3,
+            'threshold_ip_wp_login'               => 20,
+            'threshold_ip_paywall'                => 20,
+            'threshold_ip_xmlrpc'                 => 10,
             'reset_window_minutes'                => 30,
             'base_lockout_minutes'                => 15,
+            'base_lockout_minutes_ip'             => 60,
             'escalation_window_minutes'           => 1440,
             'escalation_factor'                   => 2,
             'escalation_cap'                      => 8,
+            'escalation_factor_ip'                => 2,
+            'escalation_cap_ip'                   => 16,
             'xmlrpc_allowlist_users'              => array(),
             'xmlrpc_allowlist_capabilities'       => array(),
             'xmlrpc_require_application_password' => true,
@@ -90,8 +96,16 @@ final class Settings {
         return is_multisite();
     }
 
-    public function threshold_for(string $gateway): int {
+    public function threshold_for(string $gateway, string $scope = 'username'): int {
         $settings = $this->all();
+
+        if ('ip' === $scope) {
+            return match ($gateway) {
+                'xmlrpc'   => (int) $settings['threshold_ip_xmlrpc'],
+                'paywall'  => (int) $settings['threshold_ip_paywall'],
+                default    => (int) $settings['threshold_ip_wp_login'],
+            };
+        }
 
         return match ($gateway) {
             'xmlrpc'   => (int) $settings['threshold_xmlrpc'],
@@ -104,20 +118,26 @@ final class Settings {
         return max(5, (int) $this->all()['reset_window_minutes']) * MINUTE_IN_SECONDS;
     }
 
-    public function base_lockout_seconds(): int {
-        return max(1, (int) $this->all()['base_lockout_minutes']) * MINUTE_IN_SECONDS;
+    public function base_lockout_seconds(string $scope = 'username'): int {
+        $key = 'ip' === $scope ? 'base_lockout_minutes_ip' : 'base_lockout_minutes';
+
+        return max(1, (int) $this->all()[$key]) * MINUTE_IN_SECONDS;
     }
 
     public function escalation_window_seconds(): int {
         return max(5, (int) $this->all()['escalation_window_minutes']) * MINUTE_IN_SECONDS;
     }
 
-    public function escalation_factor(): int {
-        return max(1, (int) $this->all()['escalation_factor']);
+    public function escalation_factor(string $scope = 'username'): int {
+        $key = 'ip' === $scope ? 'escalation_factor_ip' : 'escalation_factor';
+
+        return max(1, (int) $this->all()[$key]);
     }
 
-    public function escalation_cap(): int {
-        return max(1, (int) $this->all()['escalation_cap']);
+    public function escalation_cap(string $scope = 'username'): int {
+        $key = 'ip' === $scope ? 'escalation_cap_ip' : 'escalation_cap';
+
+        return max(1, (int) $this->all()[$key]);
     }
 
     /**
@@ -184,11 +204,17 @@ final class Settings {
             'threshold_wp_login'                  => $this->sanitize_positive_int($raw['threshold_wp_login'] ?? $defaults['threshold_wp_login'], 2),
             'threshold_paywall'                   => $this->sanitize_positive_int($raw['threshold_paywall'] ?? $defaults['threshold_paywall'], 2),
             'threshold_xmlrpc'                    => $this->sanitize_positive_int($raw['threshold_xmlrpc'] ?? $defaults['threshold_xmlrpc'], 1),
+            'threshold_ip_wp_login'               => $this->sanitize_positive_int($raw['threshold_ip_wp_login'] ?? $defaults['threshold_ip_wp_login'], 2),
+            'threshold_ip_paywall'                => $this->sanitize_positive_int($raw['threshold_ip_paywall'] ?? $defaults['threshold_ip_paywall'], 2),
+            'threshold_ip_xmlrpc'                 => $this->sanitize_positive_int($raw['threshold_ip_xmlrpc'] ?? $defaults['threshold_ip_xmlrpc'], 1),
             'reset_window_minutes'                => $this->sanitize_positive_int($raw['reset_window_minutes'] ?? $defaults['reset_window_minutes'], 5),
             'base_lockout_minutes'                => $this->sanitize_positive_int($raw['base_lockout_minutes'] ?? $defaults['base_lockout_minutes'], 1),
+            'base_lockout_minutes_ip'             => $this->sanitize_positive_int($raw['base_lockout_minutes_ip'] ?? $defaults['base_lockout_minutes_ip'], 1),
             'escalation_window_minutes'           => $this->sanitize_positive_int($raw['escalation_window_minutes'] ?? $defaults['escalation_window_minutes'], 5),
             'escalation_factor'                   => $this->sanitize_positive_int($raw['escalation_factor'] ?? $defaults['escalation_factor'], 1),
             'escalation_cap'                      => $this->sanitize_positive_int($raw['escalation_cap'] ?? $defaults['escalation_cap'], 1),
+            'escalation_factor_ip'                => $this->sanitize_positive_int($raw['escalation_factor_ip'] ?? $defaults['escalation_factor_ip'], 1),
+            'escalation_cap_ip'                   => $this->sanitize_positive_int($raw['escalation_cap_ip'] ?? $defaults['escalation_cap_ip'], 1),
             'xmlrpc_allowlist_users'              => $this->sanitize_list_textarea($raw['xmlrpc_allowlist_users'] ?? array()),
             'xmlrpc_allowlist_capabilities'       => $this->sanitize_list_textarea($raw['xmlrpc_allowlist_capabilities'] ?? array()),
             'xmlrpc_require_application_password' => ! empty($raw['xmlrpc_require_application_password']),
