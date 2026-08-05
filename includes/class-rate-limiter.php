@@ -17,16 +17,14 @@ final class Rate_Limiter {
     public function active_lockout(string $gateway, string $ip, string $username = ''): ?array {
         $matches = array();
 
-        $ip_lockout = $this->state->get_lockout($gateway, 'ip', $ip);
+        $ip_lockout = $this->active_ip_lockout($gateway, $ip);
         if (is_array($ip_lockout)) {
-            $matches[] = array_merge($ip_lockout, array('scope' => 'ip', 'value' => $ip));
+            $matches[] = $ip_lockout;
         }
 
-        if ('' !== $username) {
-            $user_lockout = $this->state->get_lockout($gateway, 'username', strtolower($username));
-            if (is_array($user_lockout)) {
-                $matches[] = array_merge($user_lockout, array('scope' => 'username', 'value' => strtolower($username)));
-            }
+        $user_lockout = $this->active_username_lockout($gateway, $username);
+        if (is_array($user_lockout)) {
+            $matches[] = $user_lockout;
         }
 
         if (empty($matches)) {
@@ -39,6 +37,37 @@ final class Rate_Limiter {
         );
 
         return $matches[0];
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function active_ip_lockout(string $gateway, string $ip): ?array {
+        $ip_lockout = $this->state->get_lockout($gateway, 'ip', $ip);
+
+        if (! is_array($ip_lockout)) {
+            return null;
+        }
+
+        return array_merge($ip_lockout, array('scope' => 'ip', 'value' => $ip));
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function active_username_lockout(string $gateway, string $username): ?array {
+        if ('' === $username) {
+            return null;
+        }
+
+        $normalized_username = strtolower($username);
+        $user_lockout        = $this->state->get_lockout($gateway, 'username', $normalized_username);
+
+        if (! is_array($user_lockout)) {
+            return null;
+        }
+
+        return array_merge($user_lockout, array('scope' => 'username', 'value' => $normalized_username));
     }
 
     /**

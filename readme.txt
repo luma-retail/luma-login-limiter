@@ -4,7 +4,7 @@ Tags: security, login, xml-rpc, rate-limit, authentication
 Requires at least: 6.4
 Tested up to: 6.8
 Requires PHP: 8.0
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -74,7 +74,15 @@ Yes. The plugin uses the `luma-login-limiter` text domain and ships with a `lang
 
 No. Super admins are not automatically bypassed. If you want a recovery path, configure the emergency bypass username explicitly.
 
+The emergency bypass username skips username-based counters and lockouts only. IP lockouts are still enforced.
+
 == Changelog ==
+
+= 0.2.4 =
+
+* Make emergency bypass username apply only to username-based counters and lockouts.
+* Keep IP lockouts enforced for the emergency bypass username.
+* Clarify emergency bypass behavior in admin UI and documentation.
 
 = 0.2.3 =
 

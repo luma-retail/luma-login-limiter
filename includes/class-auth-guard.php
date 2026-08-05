@@ -38,35 +38,31 @@ final class Auth_Guard {
         $gateway = $this->context->current();
         $ip      = $this->ip_resolver->resolve();
 
-        if (! $this->is_emergency_bypass($username)) {
-            $lockout = $this->rate_limiter->active_lockout($gateway, $ip, $username);
+        $lockout = $this->active_lockout_for_attempt($gateway, $ip, $username);
+        if (is_array($lockout)) {
+            $this->logger->log(
+                'warning',
+                'auth_locked',
+                array(
+                    'gateway'     => $gateway,
+                    'username'    => $username,
+                    'ip'          => $ip,
+                    'outcome'     => 'locked',
+                    'reason_code' => 'rate_limited',
+                    'lockout'     => $lockout,
+                )
+            );
 
-            if (is_array($lockout)) {
-                $this->logger->log(
-                    'warning',
-                    'auth_locked',
-                    array(
-                        'gateway'     => $gateway,
-                        'username'    => $username,
-                        'ip'          => $ip,
-                        'outcome'     => 'locked',
-                        'reason_code' => 'rate_limited',
-                        'lockout'     => $lockout,
-                    )
-                );
-
-                return new WP_Error(
-                    'luma_rate_limited',
-                    $this->lockout_message($lockout)
-                );
-            }
+            return new WP_Error(
+                'luma_rate_limited',
+                $this->lockout_message($lockout)
+            );
         }
 
         if ('xmlrpc' === $gateway && ! $this->is_xmlrpc_user_allowed($username)) {
-            if (! $this->is_emergency_bypass($username)) {
-                $lockouts = $this->rate_limiter->register_failure($gateway, $ip, $username, 'xmlrpc_not_allowlisted');
-                $this->log_created_lockouts($lockouts, $gateway, $ip, $username, 'xmlrpc_not_allowlisted');
-            }
+            $tracking_username = $this->tracking_username($username);
+            $lockouts          = $this->rate_limiter->register_failure($gateway, $ip, $tracking_username, 'xmlrpc_not_allowlisted');
+            $this->log_created_lockouts($lockouts, $gateway, $ip, $tracking_username, 'xmlrpc_not_allowlisted');
 
             $this->logger->log(
                 'warning',
@@ -102,35 +98,32 @@ final class Auth_Guard {
         $ip      = $this->ip_resolver->resolve();
 
         if ($user instanceof WP_User) {
-            if (! $this->is_emergency_bypass($username)) {
-                $lockout = $this->rate_limiter->active_lockout($gateway, $ip, $username);
+            $lockout = $this->active_lockout_for_attempt($gateway, $ip, $username);
 
-                if (is_array($lockout)) {
-                    $this->logger->log(
-                        'warning',
-                        'auth_locked',
-                        array(
-                            'gateway'     => $gateway,
-                            'username'    => $username,
-                            'ip'          => $ip,
-                            'outcome'     => 'locked',
-                            'reason_code' => 'rate_limited',
-                            'lockout'     => $lockout,
-                        )
-                    );
+            if (is_array($lockout)) {
+                $this->logger->log(
+                    'warning',
+                    'auth_locked',
+                    array(
+                        'gateway'     => $gateway,
+                        'username'    => $username,
+                        'ip'          => $ip,
+                        'outcome'     => 'locked',
+                        'reason_code' => 'rate_limited',
+                        'lockout'     => $lockout,
+                    )
+                );
 
-                    return new WP_Error(
-                        'luma_rate_limited',
-                        $this->lockout_message($lockout)
-                    );
-                }
+                return new WP_Error(
+                    'luma_rate_limited',
+                    $this->lockout_message($lockout)
+                );
             }
 
             if ('xmlrpc' === $gateway && $this->settings->xmlrpc_requires_application_password() && ! $this->used_application_password) {
-                if (! $this->is_emergency_bypass($username)) {
-                    $lockouts = $this->rate_limiter->register_failure('xmlrpc', $ip, $username, 'xmlrpc_application_password_required');
-                    $this->log_created_lockouts($lockouts, 'xmlrpc', $ip, $username, 'xmlrpc_application_password_required');
-                }
+                $tracking_username = $this->tracking_username($username);
+                $lockouts          = $this->rate_limiter->register_failure('xmlrpc', $ip, $tracking_username, 'xmlrpc_application_password_required');
+                $this->log_created_lockouts($lockouts, 'xmlrpc', $ip, $tracking_username, 'xmlrpc_application_password_required');
 
                 $this->logger->log(
                     'warning',
@@ -151,9 +144,7 @@ final class Auth_Guard {
             }
 
             if ('xmlrpc' === $gateway) {
-                if (! $this->is_emergency_bypass($username)) {
-                    $this->rate_limiter->clear_failures('xmlrpc', $ip, $username);
-                }
+                $this->rate_limiter->clear_failures('xmlrpc', $ip, $this->tracking_username($username));
 
                 $this->logger->log(
                     'info',
@@ -175,11 +166,10 @@ final class Auth_Guard {
             return $user;
         }
 
-        if (! $this->is_emergency_bypass($username)) {
-            $reason   = $this->reason_code_from_error($user);
-            $lockouts = $this->rate_limiter->register_failure($gateway, $ip, $username, $reason);
-            $this->log_created_lockouts($lockouts, $gateway, $ip, $username, $reason);
-        }
+        $reason            = $this->reason_code_from_error($user);
+        $tracking_username = $this->tracking_username($username);
+        $lockouts          = $this->rate_limiter->register_failure($gateway, $ip, $tracking_username, $reason);
+        $this->log_created_lockouts($lockouts, $gateway, $ip, $tracking_username, $reason);
 
         $this->logger->log(
             'warning',
@@ -205,9 +195,7 @@ final class Auth_Guard {
 
         $ip = $this->ip_resolver->resolve();
 
-        if (! $this->is_emergency_bypass($user_login)) {
-            $this->rate_limiter->clear_failures($gateway, $ip, $user_login);
-        }
+        $this->rate_limiter->clear_failures($gateway, $ip, $this->tracking_username($user_login));
 
         $this->logger->log(
             'info',
@@ -245,6 +233,25 @@ final class Auth_Guard {
         $configured = strtolower($this->settings->emergency_bypass_username());
 
         return '' !== $configured && strtolower($username) === $configured;
+    }
+
+    private function tracking_username(string $username): string {
+        if ($this->is_emergency_bypass($username)) {
+            return '';
+        }
+
+        return $username;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function active_lockout_for_attempt(string $gateway, string $ip, string $username): ?array {
+        if (! $this->is_emergency_bypass($username)) {
+            return $this->rate_limiter->active_lockout($gateway, $ip, $username);
+        }
+
+        return $this->rate_limiter->active_ip_lockout($gateway, $ip);
     }
 
     private function is_xmlrpc_user_allowed(string $username): bool {

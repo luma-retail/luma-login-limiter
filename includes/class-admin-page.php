@@ -199,7 +199,7 @@ final class Admin_Page {
 
                         <div class="luma-form-section">
                             <h3><?php esc_html_e('Operations and recovery', 'luma-login-limiter'); ?></h3>
-                            <?php $this->render_text_field('emergency_bypass_username', __('Emergency bypass username', 'luma-login-limiter'), __('Optional trusted admin username that bypasses rate-limit counters and active lockouts. This does not bypass correct credentials or disabled XML-RPC methods.', 'luma-login-limiter'), (string) $settings['emergency_bypass_username']); ?>
+                            <?php $this->render_text_field('emergency_bypass_username', __('Emergency bypass username', 'luma-login-limiter'), __('Optional trusted admin username that bypasses username-based counters and lockouts only. IP lockouts remain enforced. This does not bypass correct credentials or disabled XML-RPC methods.', 'luma-login-limiter'), (string) $settings['emergency_bypass_username']); ?>
                             <?php $this->render_select_field('trusted_ip_header', __('Trusted IP header', 'luma-login-limiter'), __('Default is REMOTE_ADDR. Change this only when you trust the upstream proxy that sets the selected header.', 'luma-login-limiter'), (string) $settings['trusted_ip_header'], $trusted_headers); ?>
                             <?php $this->render_select_field('log_level', __('Log level', 'luma-login-limiter'), __('Choose how much local event detail to keep. Debug stores the most detail and is best used temporarily.', 'luma-login-limiter'), (string) $settings['log_level'], array(
                                 'error'   => __('Error', 'luma-login-limiter'),

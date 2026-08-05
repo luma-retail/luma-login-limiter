@@ -98,7 +98,7 @@ When adding new UI copy, regenerate the POT file in the same change so translato
 ## Operational guidance
 
 - Leave the trusted IP source at `REMOTE_ADDR` unless you are behind a proxy you control and trust.
-- Set an emergency bypass username for one trusted administrator so lockout recovery does not require disabling the plugin.
+- Set an emergency bypass username for one trusted administrator when needed for recovery. This bypass applies to username-based lockouts only, while IP lockouts are still enforced.
 - Use `debug` log level temporarily during rollout, then move back to `info` or `warning`.
 - Review active lockouts and recent events from the per-site Users screen instead of guessing from server logs alone.
 
